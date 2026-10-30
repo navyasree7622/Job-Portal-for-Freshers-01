@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}User Management — Admin — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container dashboard-layout">
+  
+  <div class="dashboard-header">
+    <div class="dashboard-greeting">
+      <h1>User Accounts Management</h1>
+      <p>Audit and regulate candidate, recruiter, and administrator access permissions.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">&larr; Back to Admin Overview</a>
+    </div>
+  </div>
+
+  <!-- Role Filters -->
+  <div style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <a href="{{ url_for('admin_users') }}" class="btn btn-sm {% if not selected_role %}btn-primary{% else %}btn-outline{% endif %}">
+      All Users ({{ users|length }})
+    </a>
+    <a href="{{ url_for('admin_users', role='fresher') }}" class="btn btn-sm {% if selected_role == 'fresher' %}btn-primary{% else %}btn-outline{% endif %}">
+      Freshers
+    </a>
+    <a href="{{ url_for('admin_users', role='recruiter') }}" class="btn btn-sm {% if selected_role == 'recruiter' %}btn-primary{% else %}btn-outline{% endif %}">
+      Recruiters
+    </a>
+    <a href="{{ url_for('admin_users', role='admin') }}" class="btn btn-sm {% if selected_role == 'admin' %}btn-primary{% else %}btn-outline{% endif %}">
+      Administrators
+    </a>
+  </div>
+
+  <div class="card-table-wrapper">
+    <div class="data-table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User Name</th>
+            <th>Email Address</th>
+            <th>Role</th>
+            <th>Account Status</th>
+            <th>Registered Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+            <tr>
+              <td><strong>{{ u.name }}</strong></td>
+              <td>{{ u.email }}</td>
+              <td>
+                <span class="badge {% if u.role == 'admin' %}badge-accent{% elif u.role == 'recruiter' %}badge-secondary{% else %}badge-primary{% endif %}">
+                  {{ u.role }}
+                </span>
+              </td>
+              <td>
+                {% if u.is_active %}
+                  <span class="status-badge status-selected">Active</span>
+                {% else %}
+                  <span class="status-badge status-rejected">Suspended</span>
+                {% endif %}
+              </td>
+              <td>{{ u.created_at.strftime('%d %b %Y') if u.created_at else 'Recent' }}</td>
+              <td>
+                {% if u.id != session.get('user_id') %}
+                  <form action="{{ url_for('admin_toggle_user', user_id=u.id) }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="return_role" value="{{ selected_role or '' }}">
+                    {% if u.is_active %}
+                      <button type="submit" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: var(--danger);" onclick="return confirm('Suspend user account {{ u.email }}?');">
+                        Suspend
+                      </button>
+                    {% else %}
+                      <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('Reactivate account {{ u.email }}?');">
+                        Activate
+                      </button>
+                    {% endif %}
+                  </form>
+                {% else %}
+                  <span style="font-size: 0.8rem; color: var(--text-muted);">Current Admin</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
