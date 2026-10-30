@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}Explore Entry-Level Jobs & Internships — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+  
+  <!-- Page Header -->
+  <div class="section-header" style="margin-bottom: 1.75rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+        <span class="badge badge-primary" style="font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase;">Job Discovery Hub</span>
+        <span class="badge badge-sample" title="Demonstration Listing Notice">Seeded Demo Data Included</span>
+      </div>
+      <h1 class="section-title">Explore Fresher Opportunities</h1>
+      <p class="section-subtitle">
+        Found <strong id="jobResultCount" style="color: var(--primary);">{{ jobs|length }}</strong> opportunities tailored for 2024–2026 graduates, trainees, and interns.
+      </p>
+    </div>
+  </div>
+
+  <!-- Popular Skill Quick Filter Pills -->
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 2rem; box-shadow: var(--shadow-xs);">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+      <span style="font-size: 0.85rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 0.4rem;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        Trending Tech Stacks:
+      </span>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+        {% for s in popular_skills %}
+          <a href="{{ url_for('browse_jobs', skill=s if filters.skill != s else None, category=filters.category, location=filters.location, work_arrangement=filters.work_arrangement, job_type=filters.job_type) }}"
+             class="skill-pill {% if filters.skill == s %}active{% endif %}"
+             style="cursor: pointer; text-decoration: none; font-size: 0.8rem; padding: 0.35rem 0.75rem; border-radius: var(--radius-full); transition: all 0.2s; {% if filters.skill == s %}background: var(--primary); color: #fff; font-weight: 700; border-color: var(--primary);{% else %}background: var(--bg); border: 1px solid var(--border); color: var(--text-main);{% endif %}">
+            {{ s }} {% if filters.skill == s %}✕{% endif %}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 290px 1fr; gap: 2rem; align-items: start;">
+    
+    <!-- Filter Sidebar -->
+    <aside style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.5rem; box-shadow: var(--shadow-sm); position: sticky; top: 92px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 0.5rem;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+          Filter Results
+        </h3>
+        <a href="{{ url_for('browse_jobs') }}" id="clearFiltersBtn" style="font-size: 0.825rem; font-weight: 600; color: var(--danger); text-decoration: none;">Reset All</a>
+      </div>
+
+      <form action="{{ url_for('browse_jobs') }}" method="GET" id="jobFilterForm">
+        {% if filters.skill %}
+          <input type="hidden" name="skill" value="{{ filters.skill }}">
+        {% endif %}
+
+        <!-- Keyword Search -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="keywordInput" style="font-size: 0.85rem; font-weight: 600;">Job Title / Company</label>
+          <input type="text" id="keywordInput" name="keyword" class="form-control" placeholder="e.g. Python, Analyst, TCS..." value="{{ filters.keyword or '' }}">
+        </div>
+
+        <!-- Location -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="locationInput" style="font-size: 0.85rem; font-weight: 600;">Location</label>
+          <input type="text" id="locationInput" name="location" class="form-control" placeholder="e.g. Bangalore, Hyderabad..." value="{{ filters.location or '' }}">
+        </div>
+
+        <!-- Category / Domain -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="categorySelect" style="font-size: 0.85rem; font-weight: 600;">Industry Domain</label>
+          <select id="categorySelect" name="category" class="form-control">
+            <option value="">All Domains ({{ jobs|length }})</option>
+            <option value="Software Development" {% if filters.category == 'Software Development' %}selected{% endif %}>
+              Software Development {% if category_counts.get('Software Development') %}({{ category_counts['Software Development'] }}){% endif %}
+            </option>
+            <option value="Data & Analytics" {% if filters.category == 'Data & Analytics' %}selected{% endif %}>
+              Data & Analytics {% if category_counts.get('Data & Analytics') %}({{ category_counts['Data & Analytics'] }}){% endif %}
+            </option>
+            <option value="Quality Assurance" {% if filters.category == 'Quality Assurance' %}selected{% endif %}>
+              Quality & Testing {% if category_counts.get('Quality Assurance') %}({{ category_counts['Quality Assurance'] }}){% endif %}
+            </option>
+            <option value="Cloud & DevOps" {% if filters.category == 'Cloud & DevOps' %}selected{% endif %}>
+              Cloud & IT {% if category_counts.get('Cloud & DevOps') %}({{ category_counts['Cloud & DevOps'] }}){% endif %}
+            </option>
+            <option value="Business & Operations" {% if filters.category == 'Business & Operations' %}selected{% endif %}>
+              Business & Design {% if category_counts.get('Business & Operations') %}({{ category_counts['Business & Operations'] }}){% endif %}
+            </option>
+            <option value="Core Engineering" {% if filters.category == 'Core Engineering' %}selected{% endif %}>
+              Core Engineering (GET) {% if category_counts.get('Core Engineering') %}({{ category_counts['Core Engineering'] }}){% endif %}
+            </option>
+          </select>
+        </div>
+
+        <!-- Work Arrangement -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="arrangementSelect" style="font-size: 0.85rem; font-weight: 600;">Work Arrangement</label>
+          <select id="arrangementSelect" name="work_arrangement" class="form-control">
+            <option value="">All Arrangements</option>
+            <option value="Remote" {% if filters.work_arrangement == 'Remote' %}selected{% endif %}>
+              🌐 Remote {% if arrangement_counts.get('Remote') %}({{ arrangement_counts['Remote'] }}){% endif %}
+            </option>
+            <option value="Hybrid" {% if filters.work_arrangement == 'Hybrid' %}selected{% endif %}>
+              🏢 Hybrid {% if arrangement_counts.get('Hybrid') %}({{ arrangement_counts['Hybrid'] }}){% endif %}
+            </option>
+            <option value="Onsite" {% if filters.work_arrangement == 'Onsite' %}selected{% endif %}>
+              📍 Onsite {% if arrangement_counts.get('Onsite') %}({{ arrangement_counts['Onsite'] }}){% endif %}
+            </option>
+          </select>
+        </div>
+
+        <!-- Job Type -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="jobTypeSelect" style="font-size: 0.85rem; font-weight: 600;">Employment Type</label>
+          <select id="jobTypeSelect" name="job_type" class="form-control">
+            <option value="">All Employment Types</option>
+            <option value="Full-Time" {% if filters.job_type == 'Full-Time' %}selected{% endif %}>
+              Full-Time {% if type_counts.get('Full-Time') %}({{ type_counts['Full-Time'] }}){% endif %}
+            </option>
+            <option value="Internship" {% if filters.job_type == 'Internship' %}selected{% endif %}>
+              Internship {% if type_counts.get('Internship') %}({{ type_counts['Internship'] }}){% endif %}
+            </option>
+            <option value="Part-Time" {% if filters.job_type == 'Part-Time' %}selected{% endif %}>Part-Time</option>
+          </select>
+        </div>
+
+        <!-- Experience Level -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="expLevelSelect" style="font-size: 0.85rem; font-weight: 600;">Experience</label>
+          <select id="expLevelSelect" name="experience_level" class="form-control">
+            <option value="">All Fresher Levels</option>
+            <option value="0 Years (Fresh Graduate)" {% if filters.experience_level == '0 Years (Fresh Graduate)' %}selected{% endif %}>Fresh Graduate (0 Yrs)</option>
+            <option value="Fresher / 0-1 Years" {% if filters.experience_level == 'Fresher / 0-1 Years' %}selected{% endif %}>Fresher (0-1 Years)</option>
+            <option value="0-6 Months" {% if filters.experience_level == '0-6 Months' %}selected{% endif %}>0-6 Months</option>
+            <option value="0-2 Years" {% if filters.experience_level == '0-2 Years' %}selected{% endif %}>0-2 Years</option>
+          </select>
+        </div>
+
+        <!-- Minimum Salary -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="minSalarySelect" style="font-size: 0.85rem; font-weight: 600;">Minimum CTC / Package</label>
+          <select id="minSalarySelect" name="min_salary" class="form-control">
+            <option value="">Any Compensation</option>
+            <option value="300000" {% if filters.min_salary == '300000' %}selected{% endif %}>₹3+ LPA / 25k+ Stipend</option>
+            <option value="500000" {% if filters.min_salary == '500000' %}selected{% endif %}>₹5+ LPA / 40k+ Stipend</option>
+            <option value="700000" {% if filters.min_salary == '700000' %}selected{% endif %}>₹7+ LPA</option>
+            <option value="1000000" {% if filters.min_salary == '1000000' %}selected{% endif %}>₹10+ LPA</option>
+          </select>
+        </div>
+
+        <!-- Sort By -->
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="sortSelect" style="font-size: 0.85rem; font-weight: 600;">Sort By</label>
+          <select id="sortSelect" name="sort" class="form-control">
+            <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest Opportunities</option>
+            <option value="salary_high" {% if filters.sort == 'salary_high' %}selected{% endif %}>Salary: High to Low</option>
+            <option value="salary_low" {% if filters.sort == 'salary_low' %}selected{% endif %}>Salary: Low to High</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="padding: 0.75rem;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          Search Vacancies
+        </button>
+      </form>
+    </aside>
+
+    <!-- Jobs Grid Container -->
+    <main>
+      {% if jobs %}
+        <div class="jobs-grid" id="jobsContainer" style="grid-template-columns: 1fr; gap: 1.25rem;">
+          {% for job in jobs %}
+            <div class="job-card" style="position: relative; border-left: 4px solid {% if job.is_featured %}var(--accent){% else %}var(--primary){% endif %};">
+              <div>
+                <div class="job-card-header">
+                  <div class="company-logo-box" style="background: var(--navy); color: #fff; font-weight: 700;">
+                    {{ job.company_name[:2] | upper }}
+                  </div>
+                  <div class="job-title-group" style="flex: 1;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                      <h2 class="job-card-title" style="margin-bottom: 0.25rem;">
+                        <a href="{{ url_for('job_details', job_id=job.id) }}" style="color: var(--navy); text-decoration: none;">
+                          {{ job.title }}
+                        </a>
+                      </h2>
+                      <!-- Seeded Sample Badge vs Verified Status -->
+                      <div>
+                        {% if job.is_sample %}
+                          <span class="badge badge-sample" title="Demonstration Listing for Project Evaluation">Demo Sample Listing</span>
+                        {% endif %}
+                        {% if job.is_featured %}
+                          <span class="badge badge-featured">★ Featured</span>
+                        {% endif %}
+                      </div>
+                    </div>
+                    
+                    <div class="company-name" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">
+                      <span>{{ job.company_name }}</span>
+                      {% if job.verification_status == 'verified' %}
+                        <span class="verified-badge" title="Verified Recruiter Entity" style="display: inline-flex; align-items: center; color: var(--secondary);">
+                          <svg width="15" height="15" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                          </svg>
+                          <span style="font-size: 0.75rem; font-weight: 600; margin-left: 0.2rem;">Verified</span>
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="job-badges" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0;">
+                  <!-- Work Arrangement -->
+                  {% if job.work_arrangement == 'Remote' %}
+                    <span class="badge badge-remote">🌐 Remote</span>
+                  {% elif job.work_arrangement == 'Hybrid' %}
+                    <span class="badge badge-hybrid">🏢 Hybrid</span>
+                  {% else %}
+                    <span class="badge badge-onsite">📍 Onsite</span>
+                  {% endif %}
+
+                  <!-- Employment Type -->
+                  <span class="badge badge-primary">{{ job.job_type }}</span>
+
+                  <!-- Experience -->
+                  <span class="badge badge-secondary">{{ job.experience_level }}</span>
+
+                  <!-- Category -->
+                  <span class="badge badge-outline">{{ job.category }}</span>
+
+                  <!-- Location -->
+                  <span class="badge badge-outline" style="color: var(--text-muted);">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    {{ job.location }}
+                  </span>
+                </div>
+
+                <p class="job-card-desc" style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.75rem;">
+                  {{ job.description[:220] }}{% if job.description|length > 220 %}...{% endif %}
+                </p>
+
+                <div class="skills-pill-group" style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.5rem;">
+                  {% for skill in job.required_skills.split(',') %}
+                    <span class="skill-pill" style="font-size: 0.75rem;">{{ skill.strip() }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <div class="job-card-footer" style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.75rem;">
+                <div>
+                  <div class="salary-tag" style="font-size: 1rem; font-weight: 700; color: var(--navy);">
+                    {% if job.salary_min and job.salary_max %}
+                      ₹{{ "{:,.0f}".format(job.salary_min / 100000) }} - ₹{{ "{:,.0f}".format(job.salary_max / 100000) }} LPA
+                    {% elif job.salary_min %}
+                      ₹{{ "{:,.0f}".format(job.salary_min / 100000) }}+ LPA
+                    {% else %}
+                      Competitive Fresher Package
+                    {% endif %}
+                  </div>
+                  {% if job.deadline %}
+                    <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.25rem; margin-top: 0.15rem;">
+                      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      Apply by: {{ job.deadline.strftime('%d %b %Y') if job.deadline.strftime is defined else job.deadline }}
+                    </div>
+                  {% endif %}
+                </div>
+
+                <div class="job-card-actions" style="display: flex; align-items: center; gap: 0.75rem;">
+                  <button class="bookmark-btn {% if job.is_saved %}saved{% endif %}" data-job-id="{{ job.id }}" title="{% if job.is_saved %}Saved in Favorites{% else %}Save for Later{% endif %}">
+                    <svg width="18" height="18" fill="{% if job.is_saved %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                  </button>
+                  <a href="{{ url_for('job_details', job_id=job.id) }}" class="btn btn-primary btn-sm">
+                    View Details & Apply →
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 3.5rem 2rem; text-align: center;">
+          <div class="empty-icon" style="margin: 0 auto 1.25rem; width: 64px; height: 64px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <h3 class="empty-title" style="color: var(--navy); font-size: 1.35rem; margin-bottom: 0.5rem;">No Matching Opportunities Found</h3>
+          <p class="empty-desc" style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem;">
+            We couldn't find any vacancies matching your combination of filters. Try broadening your location, category, or resetting all filters.
+          </p>
+          <a href="{{ url_for('browse_jobs') }}" class="btn btn-outline-primary">
+            Reset All Filters
+          </a>
+        </div>
+      {% endif %}
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/jobs.js') }}"></script>
+{% endblock %}
