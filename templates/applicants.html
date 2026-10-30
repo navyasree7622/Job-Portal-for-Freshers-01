@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Candidate Applicants — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container dashboard-layout">
+  
+  <div class="dashboard-header">
+    <div class="dashboard-greeting">
+      <h1>Candidate Applicants Pipeline</h1>
+      <p>Evaluate qualifications, review resumes, update statuses, and send interview notices to candidates.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('manage_jobs') }}" class="btn btn-outline">&larr; Back to Jobs</a>
+    </div>
+  </div>
+
+  <!-- Filter Controls -->
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
+    <form action="{{ url_for('recruiter_applicants') }}" method="GET" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+      
+      <div style="flex: 2; min-width: 220px;">
+        <label class="form-label" style="font-size: 0.85rem;">Filter by Job Vacancy</label>
+        <select name="job_id" class="form-control" onchange="this.form.submit()">
+          <option value="">All Job Postings</option>
+          {% for j in recruiter_jobs %}
+            <option value="{{ j.id }}" {% if selected_job_id == j.id|string %}selected{% endif %}>
+              {{ j.title }} ({{ j.applicant_count }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="flex: 1.5; min-width: 180px;">
+        <label class="form-label" style="font-size: 0.85rem;">Filter by Status</label>
+        <select name="status" class="form-control" onchange="this.form.submit()">
+          <option value="">All Statuses</option>
+          <option value="Applied" {% if selected_status == 'Applied' %}selected{% endif %}>Applied</option>
+          <option value="Under Review" {% if selected_status == 'Under Review' %}selected{% endif %}>Under Review</option>
+          <option value="Shortlisted" {% if selected_status == 'Shortlisted' %}selected{% endif %}>Shortlisted</option>
+          <option value="Interview Scheduled" {% if selected_status == 'Interview Scheduled' %}selected{% endif %}>Interview Scheduled</option>
+          <option value="Selected" {% if selected_status == 'Selected' %}selected{% endif %}>Selected</option>
+          <option value="Rejected" {% if selected_status == 'Rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+      </div>
+
+      <div>
+        <a href="{{ url_for('recruiter_applicants') }}" class="btn btn-outline">Clear Filters</a>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Applicants List -->
+  {% if applicants %}
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      {% for app in applicants %}
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.75rem; box-shadow: var(--shadow-sm);">
+          
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--navy); margin-bottom: 0.2rem;">
+                  {{ app.candidate_name }}
+                </h2>
+                {% set status_class = 'status-' + app.status.lower().replace(' ', '-') %}
+                <span class="status-badge {{ status_class }}">{{ app.status }}</span>
+              </div>
+              
+              <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: var(--text-muted); flex-wrap: wrap;">
+                <span>📧 {{ app.candidate_email }}</span>
+                <span>&bull;</span>
+                <span>📞 {{ app.phone or 'Phone not provided' }}</span>
+                <span>&bull;</span>
+                <span>📍 {{ app.location or 'Location not specified' }}</span>
+                <span>&bull;</span>
+                <span>Applied for: <strong style="color: var(--navy);">{{ app.job_title }}</strong></span>
+              </div>
+            </div>
+
+            <!-- Resume Download Button -->
+            <div>
+              <a href="{{ url_for('download_resume', filename=app.resume_path) }}" target="_blank" class="btn btn-primary btn-sm">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                View / Download Resume
+              </a>
+            </div>
+          </div>
+
+          <!-- Academic & Skills Breakdown -->
+          <div style="background: var(--surface-alt); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.9rem;">
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 0.8rem;">Education & Branch:</span>
+              <strong>{{ app.education or 'Degree' }} - {{ app.degree or 'Branch' }}</strong>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 0.8rem;">Institution / College:</span>
+              <strong>{{ app.institution or 'College not listed' }}</strong>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 0.8rem;">Graduation Batch & Score:</span>
+              <strong>{{ app.graduation_year or '2026' }} &bull; {{ app.cgpa or 'N/A' }}</strong>
+            </div>
+          </div>
+
+          {% if app.skills %}
+            <div style="margin-bottom: 1.25rem;">
+              <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Technical Skills:</span>
+              <div class="skills-pill-group" style="margin-bottom: 0;">
+                {% for s in app.skills.split(',') %}
+                  <span class="skill-pill">{{ s.strip() }}</span>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          {% if app.cover_note %}
+            <div style="background: #fff; border: 1px dashed var(--border); padding: 0.85rem 1rem; border-radius: var(--radius-xs); margin-bottom: 1.25rem; font-size: 0.9rem;">
+              <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">Candidate Note:</span>
+              <p style="color: var(--text-main); margin-top: 0.2rem;">{{ app.cover_note }}</p>
+            </div>
+          {% endif %}
+
+          <!-- Status Transition Control Form -->
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 1.25rem;">
+            <form action="{{ url_for('update_applicant_status', application_id=app.id) }}" method="POST" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+              <input type="hidden" name="return_job_id" value="{{ selected_job_id }}">
+              <input type="hidden" name="return_status" value="{{ selected_status }}">
+
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <label style="font-size: 0.85rem; font-weight: 700; color: var(--navy); white-space: nowrap;">Update Status:</label>
+                <select name="status" class="form-control" style="width: 190px;">
+                  <option value="Applied" {% if app.status == 'Applied' %}selected{% endif %}>Applied</option>
+                  <option value="Under Review" {% if app.status == 'Under Review' %}selected{% endif %}>Under Review</option>
+                  <option value="Shortlisted" {% if app.status == 'Shortlisted' %}selected{% endif %}>Shortlisted</option>
+                  <option value="Interview Scheduled" {% if app.status == 'Interview Scheduled' %}selected{% endif %}>Interview Scheduled</option>
+                  <option value="Selected" {% if app.status == 'Selected' %}selected{% endif %}>Selected</option>
+                  <option value="Rejected" {% if app.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+              </div>
+
+              <div style="flex: 1; min-width: 200px;">
+                <input type="text" name="recruiter_notes" class="form-control" placeholder="Optional feedback or interview details for candidate..." value="{{ app.recruiter_notes or '' }}">
+              </div>
+
+              <button type="submit" class="btn btn-secondary btn-sm">
+                Save & Notify Candidate
+              </button>
+            </form>
+          </div>
+
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+      </div>
+      <h3 class="empty-title">No Applicants Found</h3>
+      <p class="empty-desc">No applications match your selected filters. Adjust your filters or view all candidate submissions.</p>
+      <a href="{{ url_for('recruiter_applicants') }}" class="btn btn-outline">Show All Applicants</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
