@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}403 - Access Restricted — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 6rem 1.5rem; text-align: center;">
+  <div style="font-size: 5rem; font-weight: 800; color: var(--danger); line-height: 1;">403</div>
+  <h1 style="font-size: 2rem; font-weight: 800; color: var(--navy); margin: 1rem 0 0.5rem;">Access Restricted</h1>
+  <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 2rem; font-size: 1.05rem;">
+    You do not possess the required role permissions to view this resource. Please sign in with an authorized account.
+  </p>
+  <div style="display: flex; gap: 1rem; justify-content: center;">
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Go to Homepage</a>
+    <a href="{{ url_for('login') }}" class="btn btn-outline">Sign In</a>
+  </div>
+</div>
+{% endblock %}
+
