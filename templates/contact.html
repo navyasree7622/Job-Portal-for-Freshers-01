@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Help, Support & Contact — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 3.5rem; padding-bottom: 5rem;">
+  
+  <div style="text-align: center; max-width: 680px; margin: 0 auto 3.5rem;">
+    <h1 style="font-size: 2.5rem; font-weight: 800; color: var(--navy); margin-bottom: 0.75rem;">
+      How Can We Help You?
+    </h1>
+    <p style="font-size: 1.1rem; color: var(--text-muted);">
+      Have questions about candidate verification, job applications, or recruiter posting? Find answers below or send our team a message.
+    </p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+    
+    <!-- Contact Form -->
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.25rem; box-shadow: var(--shadow-sm);">
+      <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--navy); margin-bottom: 1.25rem;">Send Us a Message</h2>
+      
+      <form onsubmit="event.preventDefault(); showToast('Thank you! Your message has been received. Our support team will get back to you shortly.', 'success'); this.reset();">
+        <div class="form-group">
+          <label class="form-label">Your Name <span class="required">*</span></label>
+          <input type="text" class="form-control" placeholder="John Doe" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address <span class="required">*</span></label>
+          <input type="email" class="form-control" placeholder="john@domain.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Subject <span class="required">*</span></label>
+          <select class="form-control" required>
+            <option value="">Select inquiry category</option>
+            <option value="Application Issue">Application Issue</option>
+            <option value="Recruiter Verification">Recruiter Company Verification</option>
+            <option value="Resume Upload Help">Resume Upload Assistance</option>
+            <option value="Security / Feedback">Security Concern / Platform Feedback</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Message <span class="required">*</span></label>
+          <textarea class="form-control" rows="4" placeholder="Describe your question or issue in detail..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1rem;">
+          Submit Message
+        </button>
+      </form>
+    </div>
+
+    <!-- FAQ Accordion -->
+    <div>
+      <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--navy); margin-bottom: 1.25rem;">Frequently Asked Questions</h2>
+      
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem;">
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;">Is FirstStep Careers completely free for freshers?</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">Yes, 100%. FirstStep Careers never charges candidates for registering, uploading resumes, or applying to jobs. Beware of any recruiter asking for money; report them immediately.</p>
+        </div>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem;">
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;">What resume file formats are accepted?</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">You can upload standard document formats including PDF (.pdf), Microsoft Word (.doc, .docx) up to 5MB in size.</p>
+        </div>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem;">
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;">How do recruiters review applications?</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">Recruiters have a dedicated Applicants dashboard where they can review your profile, download your resume, update your application status, and leave interview feedback.</p>
+        </div>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem;">
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;">How does company verification work?</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">Our platform administrators review all registered company accounts to verify official business email domains and legitimate physical locations before awarding the verified badge.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
