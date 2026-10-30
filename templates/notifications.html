@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container dashboard-layout" style="max-width: 860px;">
+  
+  <div class="dashboard-header">
+    <div class="dashboard-greeting">
+      <h1>In-Portal Notifications</h1>
+      <p>Updates on your application status changes, shortlists, and recruiter actions.</p>
+    </div>
+    {% if notifications %}
+      <div>
+        <form action="{{ url_for('mark_all_notifications_read') }}" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Mark All as Read</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if notifications %}
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      {% for notif in notifications %}
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; box-shadow: var(--shadow-sm); {% if not notif.is_read %}border-left: 4px solid var(--primary); background: #FAFBFD;{% endif %}">
+          
+          <div style="display: flex; gap: 1rem; align-items: flex-start;">
+            <div style="width: 38px; height: 38px; border-radius: 50%; background: {% if not notif.is_read %}var(--primary-light){% else %}var(--surface-alt){% endif %}; color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            </div>
+
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--navy);">{{ notif.title }}</h3>
+                {% if not notif.is_read %}
+                  <span style="font-size: 0.7rem; font-weight: 700; background: var(--primary); color: #fff; padding: 1px 6px; border-radius: var(--radius-full);">NEW</span>
+                {% endif %}
+              </div>
+              <p style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 0.5rem;">{{ notif.message }}</p>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">
+                {{ notif.created_at.strftime('%d %B %Y, %I:%M %p') if notif.created_at else 'Recently' }}
+              </div>
+            </div>
+          </div>
+
+          {% if notif.link %}
+            <div>
+              <a href="{{ notif.link }}" class="btn btn-outline btn-sm">View &rarr;</a>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+      </div>
+      <h3 class="empty-title">All Caught Up!</h3>
+      <p class="empty-desc">You don't have any notifications right now. New activity alerts will appear here automatically.</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
