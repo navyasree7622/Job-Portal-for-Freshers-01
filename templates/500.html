@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Server Error — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 6rem 1.5rem; text-align: center;">
+  <div style="font-size: 5rem; font-weight: 800; color: var(--navy); line-height: 1;">500</div>
+  <h1 style="font-size: 2rem; font-weight: 800; color: var(--navy); margin: 1rem 0 0.5rem;">Unexpected Server Error</h1>
+  <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 2rem; font-size: 1.05rem;">
+    Something unexpected happened on our end while processing your request. Please try again shortly.
+  </p>
+  <div style="display: flex; gap: 1rem; justify-content: center;">
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Homepage</a>
+    <a href="{{ url_for('contact') }}" class="btn btn-outline">Report Issue</a>
+  </div>
+</div>
+{% endblock %}
+
