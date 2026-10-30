@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}My Job Applications — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container dashboard-layout">
+  
+  <div class="dashboard-header">
+    <div class="dashboard-greeting">
+      <h1>My Applications Tracker</h1>
+      <p>Follow the real-time review, shortlisting, and interview status of every job you applied for.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('browse_jobs') }}" class="btn btn-primary">Discover More Jobs</a>
+    </div>
+  </div>
+
+  {% if applications %}
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      {% for app in applications %}
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.75rem; box-shadow: var(--shadow-sm);">
+          
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div class="company-logo-box" style="width: 52px; height: 52px; font-size: 1.2rem;">
+                {{ app.company_name[:2] | upper }}
+              </div>
+              <div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--navy); margin-bottom: 0.25rem;">
+                  <a href="{{ url_for('job_details', job_id=app.job_id) }}">{{ app.title }}</a>
+                </h3>
+                <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: var(--text-muted);">
+                  <span>{{ app.company_name }}</span>
+                  <span>&bull;</span>
+                  <span>{{ app.location }}</span>
+                  <span>&bull;</span>
+                  <span>Applied on {{ app.applied_at.strftime('%d %B %Y') if app.applied_at else 'Recently' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              {% set status_class = 'status-' + app.status.lower().replace(' ', '-') %}
+              <span class="status-badge {{ status_class }}" style="font-size: 0.9rem; padding: 0.4rem 0.95rem;">
+                {{ app.status }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Application Progress Lifecycle Stepper -->
+          <div class="status-stepper">
+            <div class="stepper-line"></div>
+
+            <!-- Step 1: Applied -->
+            <div class="status-step completed">
+              <div class="step-bubble">✓</div>
+              <div class="step-label">Applied</div>
+            </div>
+
+            <!-- Step 2: Under Review -->
+            {% set is_step2 = app.status in ['Under Review', 'Shortlisted', 'Interview Scheduled', 'Selected', 'Rejected'] %}
+            <div class="status-step {% if is_step2 %}completed{% elif app.status == 'Applied' %}current{% endif %}">
+              <div class="step-bubble">{% if is_step2 %}✓{% else %}2{% endif %}</div>
+              <div class="step-label">Under Review</div>
+            </div>
+
+            <!-- Step 3: Shortlisted -->
+            {% set is_step3 = app.status in ['Shortlisted', 'Interview Scheduled', 'Selected'] %}
+            <div class="status-step {% if is_step3 %}completed{% elif app.status == 'Under Review' %}current{% endif %}">
+              <div class="step-bubble">{% if is_step3 %}✓{% else %}3{% endif %}</div>
+              <div class="step-label">Shortlisted</div>
+            </div>
+
+            <!-- Step 4: Interview -->
+            {% set is_step4 = app.status in ['Interview Scheduled', 'Selected'] %}
+            <div class="status-step {% if is_step4 %}completed{% elif app.status == 'Shortlisted' %}current{% endif %}">
+              <div class="step-bubble">{% if is_step4 %}✓{% else %}4{% endif %}</div>
+              <div class="step-label">Interview</div>
+            </div>
+
+            <!-- Step 5: Final Decision -->
+            {% if app.status == 'Selected' %}
+              <div class="status-step completed">
+                <div class="step-bubble" style="background: var(--success);">🎉</div>
+                <div class="step-label" style="color: var(--success); font-weight: 700;">Selected</div>
+              </div>
+            {% elif app.status == 'Rejected' %}
+              <div class="status-step rejected">
+                <div class="step-bubble">✕</div>
+                <div class="step-label" style="color: var(--danger); font-weight: 700;">Not Selected</div>
+              </div>
+            {% elif app.status == 'Withdrawn' %}
+              <div class="status-step">
+                <div class="step-bubble">⊘</div>
+                <div class="step-label">Withdrawn</div>
+              </div>
+            {% else %}
+              <div class="status-step">
+                <div class="step-bubble">5</div>
+                <div class="step-label">Decision</div>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Recruiter Feedback Notes -->
+          {% if app.recruiter_notes %}
+            <div style="background: var(--surface-alt); border-left: 4px solid var(--primary); padding: 1rem 1.25rem; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 1.25rem 0; font-size: 0.95rem;">
+              <strong style="color: var(--navy); display: block; margin-bottom: 0.25rem;">Message from Hiring Team:</strong>
+              <span style="color: var(--text-main);">{{ app.recruiter_notes }}</span>
+            </div>
+          {% endif %}
+
+          <!-- Footer Actions -->
+          <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-subtle); padding-top: 1rem; margin-top: 1rem; font-size: 0.85rem;">
+            <div style="color: var(--text-muted);">
+              Applied with resume: <strong>{{ app.resume_path }}</strong>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem;">
+              <a href="{{ url_for('job_details', job_id=app.job_id) }}" class="btn btn-outline btn-sm">View Job</a>
+              {% if app.status not in ['Selected', 'Rejected', 'Withdrawn'] %}
+                <form action="{{ url_for('withdraw_application', application_id=app.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to withdraw this application? This action cannot be undone.');" style="display: inline;">
+                  <button type="submit" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: var(--danger);">
+                    Withdraw Application
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+      </div>
+      <h3 class="empty-title">You Haven't Applied for Any Jobs Yet</h3>
+      <p class="empty-desc">Explore live vacancies posted by verified recruiters and submit your application with a single click.</p>
+      <a href="{{ url_for('browse_jobs') }}" class="btn btn-primary">Browse Entry-Level Jobs</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
