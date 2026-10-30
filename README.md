@@ -87,11 +87,14 @@ python database/seed_data.py
 *(This automatically creates the database if not present, builds all tables, and seeds realistic test data).*
 
 ### 4. Run the Flask Web Application
+
+> This project uses Flask/Jinja templates and backend routes, which Live Server cannot execute. Do not use **Go Live** for this project. Opening `templates/index.html` with Live Server redirects to the Flask site, so it only works if the Flask server is already running.
+
 ```bash
 python app.py
 ```
-Open your browser and navigate to:
-**`http://127.0.0.1:5000`**
+
+Open **`http://127.0.0.1:5000`** in your browser. In VS Code, press **F5** and select **Run Flask Job Portal** to start the backend and open the working site automatically. Alternatively, run `python app.py` from the project folder and leave the terminal open. Live Server alone cannot run the portal.
 
 ---
 
@@ -179,4 +182,3 @@ Job_Portal_for_Freshers/
 └── uploads/
     └── resumes/               # Protected candidate resume storage
 ```
-
