@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+
+{% block title %}FirstStep Careers — Premier Job & Internship Portal for Freshers{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container hero-content">
+    <div class="hero-pill">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      </svg>
+      Built Exclusively for 2024–2026 Batch Graduates & Early-Career Tech Talent
+    </div>
+
+    <h1 class="hero-title">
+      Your First Step Toward Your <span>Dream Career</span>
+    </h1>
+    <p class="hero-subtitle">
+      Explore 40+ curated entry-level jobs, graduate trainee programs, and paid internships across top engineering and corporate domains.
+    </p>
+
+    <!-- Search Box -->
+    <form action="{{ url_for('browse_jobs') }}" method="GET" class="hero-search-box">
+      <div class="search-field">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" name="keyword" placeholder="Job title, skills (e.g. Python, Java, React, SQL)...">
+      </div>
+
+      <div class="search-field">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        <input type="text" name="location" placeholder="City or Remote (e.g. Bangalore, Hyderabad, Pune)...">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        Search Jobs
+      </button>
+    </form>
+
+    <!-- Popular Tags -->
+    <div class="hero-tags">
+      <span class="hero-tags-label">Trending Stacks:</span>
+      <a href="{{ url_for('browse_jobs', skill='Python') }}" class="keyword-tag">Python</a>
+      <a href="{{ url_for('browse_jobs', skill='Java') }}" class="keyword-tag">Java</a>
+      <a href="{{ url_for('browse_jobs', skill='React') }}" class="keyword-tag">React</a>
+      <a href="{{ url_for('browse_jobs', skill='SQL') }}" class="keyword-tag">SQL</a>
+      <a href="{{ url_for('browse_jobs', work_arrangement='Remote') }}" class="keyword-tag">Remote Roles</a>
+      <a href="{{ url_for('browse_jobs', job_type='Internship') }}" class="keyword-tag">Paid Internships</a>
+    </div>
+
+    <!-- Stats Ribbon -->
+    <div class="stats-ribbon">
+      <div class="stat-item">
+        <div class="stat-number">{{ stats.active_jobs }}+</div>
+        <div class="stat-label">Active Vacancies</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ stats.companies_count }}+</div>
+        <div class="stat-label">Verified Employers</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ stats.freshers_count }}+</div>
+        <div class="stat-label">Registered Freshers</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ stats.applications_count }}+</div>
+        <div class="stat-label">Applications Processed</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Browse by Domain Section -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Explore by Specialized Domain</h2>
+        <p class="section-subtitle">Find entry-level roles aligned with your degree, passion, and technical skillset.</p>
+      </div>
+      <a href="{{ url_for('browse_jobs') }}" class="btn btn-outline btn-sm">Browse All 40+ Jobs &rarr;</a>
+    </div>
+
+    <div class="category-grid">
+      <!-- 1. Software Development -->
+      <a href="{{ url_for('browse_jobs', category='Software Development') }}" class="category-card">
+        <div class="category-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--primary);">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+        </div>
+        <div class="category-title">Software Development</div>
+        <div class="category-count" style="font-weight: 700; color: var(--primary);">
+          {{ cat_counts.get('Software Development', 0) }} Active Openings
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Python, Java, Full Stack, Frontend, Android</div>
+      </a>
+
+      <!-- 2. Data & AI -->
+      <a href="{{ url_for('browse_jobs', category='Data & Analytics') }}" class="category-card">
+        <div class="category-icon" style="background: rgba(15, 157, 138, 0.1); color: var(--secondary);">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </div>
+        <div class="category-title">Data & Artificial Intelligence</div>
+        <div class="category-count" style="font-weight: 700; color: var(--secondary);">
+          {{ cat_counts.get('Data & Analytics', 0) }} Active Openings
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">SQL, Python, ML, Business Intelligence</div>
+      </a>
+
+      <!-- 3. Testing & QA -->
+      <a href="{{ url_for('browse_jobs', category='Quality Assurance') }}" class="category-card">
+        <div class="category-icon" style="background: rgba(245, 158, 11, 0.12); color: var(--accent);">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <div class="category-title">Testing & Cybersecurity</div>
+        <div class="category-count" style="font-weight: 700; color: var(--accent);">
+          {{ cat_counts.get('Quality Assurance', 0) }} Active Openings
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Automation, Selenium, Manual QA, InfoSec</div>
+      </a>
+
+      <!-- 4. Cloud & IT -->
+      <a href="{{ url_for('browse_jobs', category='Cloud & DevOps') }}" class="category-card">
+        <div class="category-icon" style="background: #E0E7FF; color: #4338CA;">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+          </svg>
+        </div>
+        <div class="category-title">Cloud & DevOps / IT</div>
+        <div class="category-count" style="font-weight: 700; color: #4338CA;">
+          {{ cat_counts.get('Cloud & DevOps', 0) }} Active Openings
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">AWS, Cloud Support, Linux, IT Support</div>
+      </a>
+
+      <!-- 5. Business & Design -->
+      <a href="{{ url_for('browse_jobs', category='Business & Operations') }}" class="category-card">
+        <div class="category-icon" style="background: #F3E8FF; color: #7E22CE;">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+            <path d="M2 12h20"></path>
+          </svg>
+        </div>
+        <div class="category-title">Business & UI/UX Design</div>
+        <div class="category-count" style="font-weight: 700; color: #7E22CE;">
+          {{ cat_counts.get('Business & Operations', 0) }} Active Openings
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">UI/UX, Business Analyst, Tech Writing, Marketing</div>
+      </a>
+
+      <!-- 6. Core Engineering -->
+      <a href="{{ url_for('browse_jobs', category='Core Engineering') }}" class="category-card">
+        <div class="category-icon" style="background: #FEF3C7; color: #B45309;">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+        </div>
+        <div class="category-title">Graduate Engineering Trainee</div>
+        <div class="category-count" style="font-weight: 700; color: #B45309;">
+          {{ cat_counts.get('Core Engineering', 0) }} Active Openings
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">GET, Associate Engineer, App Support, Operations</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Latest Opportunities for Freshers -->
+<section class="section" style="background: var(--surface-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+          <span class="badge badge-primary" style="font-size: 0.7rem;">Handpicked for Freshers</span>
+          <span class="badge badge-sample">Sample Demo Listings</span>
+        </div>
+        <h2 class="section-title">Featured Opportunities for Freshers</h2>
+        <p class="section-subtitle">Verified vacancies and graduate training programs recently posted by hiring partners.</p>
+      </div>
+      <a href="{{ url_for('browse_jobs') }}" class="btn btn-primary btn-sm">Explore All {{ stats.active_jobs }} Jobs &rarr;</a>
+    </div>
+
+    <div class="jobs-grid">
+      {% for job in recent_jobs %}
+        <div class="job-card" style="border-left: 4px solid {% if job.is_featured %}var(--accent){% else %}var(--primary){% endif %};">
+          <div>
+            <div class="job-card-header">
+              <div class="company-logo-box" style="background: var(--navy); color: #fff; font-weight: 700;">
+                {{ job.company_name[:2] | upper }}
+              </div>
+              <div class="job-title-group" style="flex: 1;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.25rem;">
+                  <h3 class="job-card-title">
+                    <a href="{{ url_for('job_details', job_id=job.id) }}" style="color: var(--navy); text-decoration: none;">{{ job.title }}</a>
+                  </h3>
+                  {% if job.is_featured %}
+                    <span class="badge badge-featured" style="font-size: 0.7rem;">★ Featured</span>
+                  {% endif %}
+                </div>
+                <div class="company-name" style="display: flex; align-items: center; gap: 0.4rem;">
+                  <span>{{ job.company_name }}</span>
+                  {% if job.verification_status == 'verified' %}
+                    <span class="verified-badge" title="Verified Employer" style="color: var(--secondary);">
+                      <svg width="15" height="15" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                      </svg>
+                    </span>
+                  {% endif %}
+                  {% if job.is_sample %}
+                    <span class="badge badge-sample" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Sample</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="job-badges" style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0;">
+              {% if job.work_arrangement == 'Remote' %}
+                <span class="badge badge-remote">🌐 Remote</span>
+              {% elif job.work_arrangement == 'Hybrid' %}
+                <span class="badge badge-hybrid">🏢 Hybrid</span>
+              {% else %}
+                <span class="badge badge-onsite">📍 Onsite</span>
+              {% endif %}
+              <span class="badge badge-primary">{{ job.job_type }}</span>
+              <span class="badge badge-secondary">{{ job.experience_level }}</span>
+              <span class="badge badge-outline" style="font-size: 0.75rem;">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                {{ job.location }}
+              </span>
+            </div>
+
+            <p class="job-card-desc" style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.45; margin-bottom: 0.6rem;">
+              {{ job.description[:180] }}{% if job.description|length > 180 %}...{% endif %}
+            </p>
+
+            <div class="skills-pill-group">
+              {% for skill in job.required_skills.split(',')[:4] %}
+                <span class="skill-pill">{{ skill.strip() }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="job-card-footer" style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.75rem;">
+            <div class="salary-tag" style="font-weight: 700; color: var(--navy);">
+              {% if job.salary_min and job.salary_max %}
+                ₹{{ "{:,.0f}".format(job.salary_min / 100000) }} - ₹{{ "{:,.0f}".format(job.salary_max / 100000) }} LPA
+              {% elif job.salary_min %}
+                ₹{{ "{:,.0f}".format(job.salary_min / 100000) }}+ LPA
+              {% else %}
+                Competitive Package
+              {% endif %}
+            </div>
+
+            <div class="job-card-actions" style="display: flex; align-items: center; gap: 0.5rem;">
+              <button class="bookmark-btn {% if job.is_saved %}saved{% endif %}" data-job-id="{{ job.id }}" title="{% if job.is_saved %}Saved{% else %}Save Job{% endif %}">
+                <svg width="18" height="18" fill="{% if job.is_saved %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </button>
+              <a href="{{ url_for('job_details', job_id=job.id) }}" class="btn btn-outline-primary btn-sm">View Details</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="section">
+  <div class="container">
+    <div style="text-align: center; max-width: 640px; margin: 0 auto 3rem;">
+      <h2 class="section-title">How FirstStep Careers Works</h2>
+      <p class="section-subtitle">A straightforward 4-step recruitment path built to turn college talent into hired professionals.</p>
+    </div>
+
+    <div class="how-it-works-grid">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <h3 class="step-title">Create Profile</h3>
+        <p class="step-desc">Add your college, branch, graduation year, core technical skills, and portfolio links.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-icon" style="background: rgba(15, 157, 138, 0.1); color: var(--secondary);">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+        </div>
+        <h3 class="step-title">Upload Resume</h3>
+        <p class="step-desc">Securely upload your CV in PDF or Word format with automatic verification.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-icon" style="background: rgba(245, 158, 11, 0.12); color: var(--accent);">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <h3 class="step-title">Search & 1-Click Apply</h3>
+        <p class="step-desc">Filter entry-level jobs by domain, skills, and stipend. Apply directly with one click.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <div class="step-icon" style="background: #E0E7FF; color: #4338CA;">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h3 class="step-title">Track Status</h3>
+        <p class="step-desc">Receive real-time in-portal updates when recruiters shortlist or invite you for interviews.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call To Action Banner -->
+<div class="container" style="padding-bottom: 4rem;">
+  <div class="cta-banner" style="background: linear-gradient(135deg, var(--navy) 0%, #1a365d 60%, var(--primary) 100%);">
+    <h2 class="cta-title">Ready to Kickstart Your Career?</h2>
+    <p class="cta-desc">
+      Join thousands of final-year students and fresh graduates who landed their first tech job through FirstStep Careers.
+    </p>
+    <div class="cta-buttons">
+      <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg" style="background: #fff; color: var(--navy); font-weight: 700;">
+        Create Free Account
+      </a>
+      <a href="{{ url_for('browse_jobs') }}" class="btn btn-outline btn-lg" style="color: #fff; border-color: rgba(255,255,255,0.4);">
+        Browse All Jobs
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
