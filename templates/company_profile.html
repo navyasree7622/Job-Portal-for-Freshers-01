@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Company Profile — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container dashboard-layout" style="max-width: 860px;">
+  
+  <div class="dashboard-header">
+    <div class="dashboard-greeting">
+      <h1>Company Profile</h1>
+      <p>Maintain your organization branding and contact details visible to applicants.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('recruiter_dashboard') }}" class="btn btn-outline">&larr; Back to Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Verification Alert Box -->
+  <div style="background: {% if company.verification_status == 'verified' %}var(--success-bg){% else %}var(--warning-bg){% endif %}; border: 1px solid {% if company.verification_status == 'verified' %}#B7E4CF{% else %}#FCD38D{% endif %}; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      {% if company.verification_status == 'verified' %}
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--success); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">✓</div>
+        <div>
+          <div style="font-weight: 700; color: var(--success);">Verified Employer Account</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Your company has been vetted and displays the official verified badge to candidates.</div>
+        </div>
+      {% else %}
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--warning); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">!</div>
+        <div>
+          <div style="font-weight: 700; color: var(--warning);">Verification Under Review</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Platform administrators are verifying your official employer credentials.</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <form action="{{ url_for('company_profile') }}" method="POST">
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 2.25rem; box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="company_name" class="form-label">Company Name <span class="required">*</span></label>
+          <input type="text" id="company_name" name="company_name" class="form-control" value="{{ company.company_name }}" required>
+        </div>
+
+        <div class="form-group">
+          <label for="industry" class="form-label">Industry / Sector <span class="required">*</span></label>
+          <select id="industry" name="industry" class="form-control" required>
+            <option value="Information Technology" {% if company.industry == 'Information Technology' %}selected{% endif %}>Information Technology & Software</option>
+            <option value="IT Services & Consulting" {% if company.industry == 'IT Services & Consulting' %}selected{% endif %}>IT Services & Consulting</option>
+            <option value="FinTech & Banking" {% if company.industry == 'FinTech & Banking' %}selected{% endif %}>FinTech & Banking</option>
+            <option value="E-Commerce & Retail" {% if company.industry == 'E-Commerce & Retail' %}selected{% endif %}>E-Commerce & Retail</option>
+            <option value="Core Engineering" {% if company.industry == 'Core Engineering' %}selected{% endif %}>Core Engineering & Manufacturing</option>
+            <option value="HealthTech" {% if company.industry == 'HealthTech' %}selected{% endif %}>HealthTech & Pharma</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="website" class="form-label">Official Website URL <span class="required">*</span></label>
+          <input type="url" id="website" name="website" class="form-control" placeholder="https://www.yourcompany.com" value="{{ company.website or '' }}" required>
+        </div>
+
+        <div class="form-group">
+          <label for="location" class="form-label">Headquarters / Office Location <span class="required">*</span></label>
+          <input type="text" id="location" name="location" class="form-control" placeholder="e.g. Bangalore, Karnataka" value="{{ company.location or '' }}" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="contact_email" class="form-label">Hiring Contact Email <span class="required">*</span></label>
+        <input type="email" id="contact_email" name="contact_email" class="form-control" placeholder="careers@yourcompany.com" value="{{ company.contact_email or '' }}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="description" class="form-label">Company Overview & Culture <span class="required">*</span></label>
+        <textarea id="description" name="description" class="form-control" rows="5" placeholder="Describe your company, engineering culture, technologies, and what makes your fresher training program unique..." required>{{ company.description or '' }}</textarea>
+      </div>
+
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+      <a href="{{ url_for('recruiter_dashboard') }}" class="btn btn-outline btn-lg">Cancel</a>
+      <button type="submit" class="btn btn-primary btn-lg">Update Company Profile</button>
+    </div>
+  </form>
+
+</div>
+{% endblock %}
+
