@@ -1,7 +1,11 @@
 import os
 import pymysql
 import pymysql.cursors
+from dotenv import load_dotenv
 from flask import current_app, g
+
+# Ensure .env is loaded even when db.py is imported before app context
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 def get_db_connection():
     """Create and return a new database connection."""
