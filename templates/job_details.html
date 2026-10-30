@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} at {{ job.company_name }} — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 5rem;">
+  
+  <!-- Breadcrumbs -->
+  <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+    <a href="{{ url_for('index') }}" style="color: var(--text-muted); text-decoration: none;">Home</a> &nbsp;/&nbsp; 
+    <a href="{{ url_for('browse_jobs') }}" style="color: var(--text-muted); text-decoration: none;">Jobs</a> &nbsp;/&nbsp; 
+    <span style="color: var(--navy); font-weight: 600;">{{ job.title }}</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 340px; gap: 2.5rem; align-items: start;">
+    
+    <!-- Main Job Information -->
+    <div>
+      <!-- Job Header Card -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-sm); margin-bottom: 2rem; border-left: 4px solid {% if job.is_featured %}var(--accent){% else %}var(--primary){% endif %};">
+        <div style="display: flex; align-items: flex-start; gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div class="company-logo-box" style="width: 64px; height: 64px; font-size: 1.5rem; background: var(--navy); color: #fff;">
+            {{ job.company_name[:2] | upper }}
+          </div>
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.35rem;">
+              <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy); line-height: 1.2;">
+                {{ job.title }}
+              </h1>
+              <div style="display: flex; gap: 0.4rem; align-items: center;">
+                {% if job.is_sample %}
+                  <span class="badge badge-sample" title="Demonstration Listing for Project Evaluation">Demo Sample Listing</span>
+                {% endif %}
+                {% if job.is_featured %}
+                  <span class="badge badge-featured">★ Featured</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; color: var(--text-muted); font-weight: 500;">
+              <span>{{ job.company_name }}</span>
+              {% if job.verification_status == 'verified' %}
+                <span class="verified-badge" title="Verified Employer" style="display: inline-flex; align-items: center; color: var(--secondary);">
+                  <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span style="font-size: 0.8rem; font-weight: 600; margin-left: 0.2rem;">Verified Partner</span>
+                </span>
+              {% endif %}
+              <span>&bull;</span>
+              <span>{{ job.location }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="job-badges" style="margin-bottom: 0; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+          {% if job.work_arrangement == 'Remote' %}
+            <span class="badge badge-remote">🌐 Remote</span>
+          {% elif job.work_arrangement == 'Hybrid' %}
+            <span class="badge badge-hybrid">🏢 Hybrid</span>
+          {% else %}
+            <span class="badge badge-onsite">📍 Onsite</span>
+          {% endif %}
+          <span class="badge badge-primary">{{ job.job_type }}</span>
+          <span class="badge badge-secondary">{{ job.experience_level }}</span>
+          <span class="badge badge-outline">{{ job.category }}</span>
+          {% if job.status == 'closed' %}
+            <span class="badge" style="background: #FEE2E2; color: #B91C1C;">Closed Vacancy</span>
+          {% else %}
+            <span class="badge" style="background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0;">Actively Recruiting</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Job Body Card -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.25rem; box-shadow: var(--shadow-sm);">
+        
+        <!-- Role Overview -->
+        <div style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy); margin-bottom: 0.75rem;">Role Overview</h2>
+          <p style="color: var(--text-main); line-height: 1.7; font-size: 1rem; white-space: pre-line;">{{ job.description }}</p>
+        </div>
+
+        <!-- Responsibilities -->
+        {% if job.responsibilities %}
+          <div style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy); margin-bottom: 0.75rem;">Key Responsibilities</h2>
+            <div style="color: var(--text-main); line-height: 1.7; font-size: 1rem; white-space: pre-line;">{{ job.responsibilities }}</div>
+          </div>
+        {% endif %}
+
+        <!-- Required Skills -->
+        <div style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy); margin-bottom: 0.75rem;">Required Skills & Competencies</h2>
+          <div class="skills-pill-group" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            {% for skill in job.required_skills.split(',') %}
+              <span class="skill-pill" style="font-size: 0.85rem; padding: 0.4rem 0.9rem;">{{ skill.strip() }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Eligibility Criteria -->
+        {% if job.eligibility %}
+          <div style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy); margin-bottom: 0.75rem;">Eligibility Criteria</h2>
+            <div style="color: var(--text-main); line-height: 1.7; font-size: 1rem; white-space: pre-line;">{{ job.eligibility }}</div>
+          </div>
+        {% endif %}
+
+        <!-- About Employer -->
+        {% if job.company_description %}
+          <div style="border-top: 1px solid var(--border); padding-top: 1.75rem; margin-top: 2rem;">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy); margin-bottom: 0.75rem;">About {{ job.company_name }}</h2>
+            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem;">{{ job.company_description }}</p>
+            {% if job.website %}
+              <a href="{{ job.website }}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.75rem; font-weight: 600; color: var(--primary);">
+                Visit Company Website &rarr;
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right Sticky Action Sidebar -->
+    <aside style="position: sticky; top: 92px;">
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.75rem; box-shadow: var(--shadow-sm); margin-bottom: 1.5rem;">
+        
+        <div style="margin-bottom: 1.5rem;">
+          <div style="font-size: 0.825rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Estimated Package / Stipend</div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: var(--navy); margin-top: 0.25rem;">
+            {% if job.salary_min and job.salary_max %}
+              ₹{{ "{:,.0f}".format(job.salary_min / 100000) }} - ₹{{ "{:,.0f}".format(job.salary_max / 100000) }} LPA
+            {% elif job.salary_min %}
+              ₹{{ "{:,.0f}".format(job.salary_min / 100000) }}+ LPA
+            {% else %}
+              Competitive Fresher Package
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Employment:</span>
+            <strong>{{ job.job_type }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Work Mode:</span>
+            <strong>{{ job.work_arrangement or 'Onsite' }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Location:</span>
+            <strong>{{ job.location }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Target Batch:</span>
+            <strong>{{ job.experience_level }}</strong>
+          </div>
+          {% if job.deadline %}
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Deadline:</span>
+              <strong style="color: var(--danger);">{{ job.deadline.strftime('%d %b %Y') if job.deadline.strftime is defined else job.deadline }}</strong>
+            </div>
+          {% endif %}
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Listing Type:</span>
+            <span>{% if job.is_sample %}<span class="badge badge-sample">Sample Demo</span>{% else %}<span class="badge badge-success">Verified Live</span>{% endif %}</span>
+          </div>
+        </div>
+
+        <!-- Application Action State -->
+        {% if not session.get('user_id') %}
+          <a href="{{ url_for('login', next=request.path) }}" class="btn btn-primary btn-block btn-lg">
+            Sign In to Apply
+          </a>
+        {% elif session.get('role') == 'recruiter' %}
+          <div style="background: var(--surface-alt); padding: 0.85rem; border-radius: var(--radius-sm); text-align: center; font-size: 0.85rem; color: var(--text-muted);">
+            Recruiter accounts cannot submit applications.
+          </div>
+        {% elif session.get('role') == 'admin' %}
+          <div style="background: var(--surface-alt); padding: 0.85rem; border-radius: var(--radius-sm); text-align: center; font-size: 0.85rem; color: var(--text-muted);">
+            Admin Mode Preview
+          </div>
+        {% elif existing_application %}
+          <div style="background: var(--success-bg); border: 1px solid #B7E4CF; padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+            <div style="font-weight: 700; color: var(--success); font-size: 0.95rem; margin-bottom: 0.25rem;">Application Submitted</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+              Current Status: <strong style="text-transform: capitalize;">{{ existing_application.status }}</strong>
+            </div>
+            <a href="{{ url_for('my_applications') }}" class="btn btn-outline btn-sm btn-block" style="margin-top: 0.75rem;">View Application &rarr;</a>
+          </div>
+        {% elif job.status == 'closed' %}
+          <button class="btn btn-block btn-lg disabled" disabled style="background: #E2E8F0; color: #94A3B8;">
+            Applications Closed
+          </button>
+        {% else %}
+          <button onclick="openModal('applyModal')" class="btn btn-primary btn-block btn-lg">
+            Apply for this Job
+          </button>
+        {% endif %}
+
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+          <button class="btn btn-outline btn-block bookmark-btn {% if is_saved %}saved{% endif %}" data-job-id="{{ job.id }}">
+            <svg width="18" height="18" fill="{% if is_saved %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span class="bookmark-text">{% if is_saved %}Saved in Bookmarks{% else %}Save for Later{% endif %}</span>
+          </button>
+        </div>
+
+        <div style="text-align: center; margin-top: 1rem;">
+          <button type="button" onclick="openModal('reportModal')" style="background: none; border: none; font-size: 0.8rem; color: var(--text-muted); cursor: pointer; text-decoration: underline;">
+            Report suspicious vacancy
+          </button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Apply Now Modal -->
+<div class="modal-overlay" id="applyModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Apply for {{ job.title }}</h3>
+      <button class="modal-close-btn" onclick="closeModal('applyModal')">&times;</button>
+    </div>
+
+    <form action="{{ url_for('apply_job', job_id=job.id) }}" method="POST" enctype="multipart/form-data">
+      <div class="modal-body">
+        <div style="margin-bottom: 1.25rem; background: var(--surface-alt); padding: 0.85rem; border-radius: var(--radius-sm); font-size: 0.9rem;">
+          <div>Applying to: <strong>{{ job.company_name }}</strong></div>
+          <div>Position: <strong>{{ job.title }}</strong></div>
+        </div>
+
+        <!-- Resume Selection -->
+        <div class="form-group">
+          <label class="form-label">Resume / CV <span class="required">*</span></label>
+          {% if profile and profile.resume_path %}
+            <div style="margin-bottom: 0.75rem; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: space-between; background: #fff;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                <svg width="20" height="20" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <span><strong>{{ profile.resume_filename or profile.resume_path }}</strong> (Current Profile Resume)</span>
+              </div>
+              <input type="hidden" name="use_existing_resume" value="1">
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Or upload a custom tailored resume for this role:</div>
+          {% endif %}
+          <input type="file" name="resume_file" id="resumeFileInput" class="form-control" accept=".pdf,.doc,.docx" {% if not profile or not profile.resume_path %}required{% endif %}>
+          <div id="fileUploadFeedback" class="form-help">Supported formats: PDF, DOC, DOCX (Max 5MB).</div>
+        </div>
+
+        <!-- Cover Note -->
+        <div class="form-group">
+          <label for="cover_note" class="form-label">Brief Cover Note to Recruiter (Optional)</label>
+          <textarea name="cover_note" id="cover_note" class="form-control" placeholder="Share why you are enthusiastic about this fresher role, your capstone projects, or technical strengths..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('applyModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Submit Application</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Report Job Modal -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Report Job Listing</h3>
+      <button class="modal-close-btn" onclick="closeModal('reportModal')">&times;</button>
+    </div>
+
+    <form action="{{ url_for('report_job', job_id=job.id) }}" method="POST">
+      <div class="modal-body">
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Help us keep FirstStep Careers safe and trustworthy. Our moderation team reviews every grievance promptly.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Reason for Report <span class="required">*</span></label>
+          <select name="reason" class="form-control" required>
+            <option value="">Select reason</option>
+            <option value="Suspicious or Fraudulent">Suspicious or Fraudulent Post</option>
+            <option value="Misleading Salary or Requirements">Misleading Salary or Requirements</option>
+            <option value="Duplicate Listing">Duplicate Listing</option>
+            <option value="Charging Fees from Freshers">Asking for Money/Fees (Strictly Prohibited)</option>
+            <option value="Other">Other Policy Violation</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Additional Details</label>
+          <textarea name="details" class="form-control" placeholder="Provide any additional context for the admin team..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('reportModal')">Cancel</button>
+        <button type="submit" class="btn btn-danger">Submit Report</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
