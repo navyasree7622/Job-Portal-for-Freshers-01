@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Saved Jobs — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container dashboard-layout">
+  
+  <div class="dashboard-header">
+    <div class="dashboard-greeting">
+      <h1>Saved Jobs & Bookmarks</h1>
+      <p>Keep track of opportunities you want to research or apply to before their deadlines.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('browse_jobs') }}" class="btn btn-outline">Explore More Jobs</a>
+    </div>
+  </div>
+
+  {% if saved_jobs %}
+    <div class="jobs-grid">
+      {% for job in saved_jobs %}
+        <div class="job-card saved-job-card">
+          <div>
+            <div class="job-card-header">
+              <div class="company-logo-box">
+                {{ job.company_name[:2] | upper }}
+              </div>
+              <div class="job-title-group">
+                <h3 class="job-card-title">
+                  <a href="{{ url_for('job_details', job_id=job.id) }}">{{ job.title }}</a>
+                </h3>
+                <div class="company-name">
+                  <span>{{ job.company_name }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="job-badges">
+              <span class="badge badge-outline">{{ job.location }}</span>
+              <span class="badge badge-primary">{{ job.job_type }}</span>
+              {% if job.status == 'closed' %}
+                <span class="badge" style="background: #FEE2E2; color: #B91C1C;">Closed</span>
+              {% endif %}
+            </div>
+
+            <p class="job-card-desc">{{ job.description }}</p>
+
+            <div class="skills-pill-group">
+              {% for skill in job.required_skills.split(',')[:3] %}
+                <span class="skill-pill">{{ skill.strip() }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="job-card-footer">
+            <div class="salary-tag">
+              {% if job.salary_min and job.salary_max %}
+                ₹{{ "{:,.0f}".format(job.salary_min / 100000) }} - ₹{{ "{:,.0f}".format(job.salary_max / 100000) }} LPA
+              {% else %}
+                Competitive
+              {% endif %}
+            </div>
+
+            <div class="job-card-actions">
+              <button class="bookmark-btn saved" data-job-id="{{ job.id }}" title="Remove Bookmark">
+                <svg width="18" height="18" fill="currentColor" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </button>
+              <a href="{{ url_for('job_details', job_id=job.id) }}" class="btn btn-outline-primary btn-sm">View & Apply</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+      </div>
+      <h3 class="empty-title">No Saved Jobs Yet</h3>
+      <p class="empty-desc">Click the bookmark icon on any job card to save it here for quick access later.</p>
+      <a href="{{ url_for('browse_jobs') }}" class="btn btn-primary">Find Jobs to Bookmark</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
