@@ -3,37 +3,47 @@ import pymysql
 from werkzeug.security import generate_password_hash
 from datetime import datetime, date, timedelta
 
-def seed_database():
-    host = os.getenv('MYSQL_HOST', 'localhost')
-    user = os.getenv('MYSQL_USER', 'root')
-    password = os.getenv('MYSQL_PASSWORD', '')
-    database = os.getenv('MYSQL_DB', 'job_portal_db')
-    port = int(os.getenv('MYSQL_PORT', 3306))
+def seed_database(conn=None, is_sqlite=False):
+    close_at_end = False
+    if conn is None:
+        try:
+            host = os.getenv('MYSQL_HOST', 'localhost')
+            user = os.getenv('MYSQL_USER', 'root')
+            password = os.getenv('MYSQL_PASSWORD', '')
+            database = os.getenv('MYSQL_DB', 'job_portal_db')
+            port = int(os.getenv('MYSQL_PORT', 3306))
+            conn = pymysql.connect(
+                host=host, user=user, password=password, database=database,
+                port=port, cursorclass=pymysql.cursors.DictCursor, autocommit=False, connect_timeout=1
+            )
+            is_sqlite = False
+            close_at_end = True
+        except Exception:
+            import sqlite3
+            sqlite_path = os.path.join(os.path.dirname(__file__), 'job_portal.db')
+            conn = sqlite3.connect(sqlite_path)
+            conn.row_factory = sqlite3.Row
+            conn.create_function("NOW", 0, lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            is_sqlite = True
+            close_at_end = True
 
-    conn = pymysql.connect(
-        host=host,
-        user=user,
-        password=password,
-        database=database,
-        port=port,
-        cursorclass=pymysql.cursors.DictCursor,
-        autocommit=False
-    )
+    def q(sql):
+        return sql.replace('%s', '?') if is_sqlite else sql
 
     try:
-        with conn.cursor() as cur:
+        cur = conn.cursor()
+        if True:
             # Disable foreign key checks for clean truncation and population
-            cur.execute("SET FOREIGN_KEY_CHECKS = 0;")
-            cur.execute("TRUNCATE TABLE audit_logs;")
-            cur.execute("TRUNCATE TABLE reports;")
-            cur.execute("TRUNCATE TABLE notifications;")
-            cur.execute("TRUNCATE TABLE saved_jobs;")
-            cur.execute("TRUNCATE TABLE applications;")
-            cur.execute("TRUNCATE TABLE jobs;")
-            cur.execute("TRUNCATE TABLE companies;")
-            cur.execute("TRUNCATE TABLE fresher_profiles;")
-            cur.execute("TRUNCATE TABLE users;")
-            cur.execute("SET FOREIGN_KEY_CHECKS = 1;")
+            if is_sqlite:
+                cur.execute("PRAGMA foreign_keys = OFF;")
+                for t in ['audit_logs', 'reports', 'notifications', 'saved_jobs', 'applications', 'jobs', 'companies', 'fresher_profiles', 'users']:
+                    cur.execute(f"DELETE FROM {t};")
+                cur.execute("PRAGMA foreign_keys = ON;")
+            else:
+                cur.execute("SET FOREIGN_KEY_CHECKS = 0;")
+                for t in ['audit_logs', 'reports', 'notifications', 'saved_jobs', 'applications', 'jobs', 'companies', 'fresher_profiles', 'users']:
+                    cur.execute(f"TRUNCATE TABLE {t};")
+                cur.execute("SET FOREIGN_KEY_CHECKS = 1;")
 
             print("Truncated tables. Seeding rich recruitment dataset...")
 
@@ -64,7 +74,7 @@ def seed_database():
                 INSERT INTO users (name, email, password_hash, role, is_active, created_at)
                 VALUES (%s, %s, %s, %s, %s, NOW())
             """
-            cur.executemany(insert_user_sql, users_data)
+            cur.executemany(q(insert_user_sql), users_data)
 
             cur.execute("SELECT id, email FROM users")
             user_map = {row['email']: row['id'] for row in cur.fetchall()}
@@ -188,7 +198,7 @@ def seed_database():
                     github_url, linkedin_url, portfolio_url, resume_path, resume_filename
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            cur.executemany(insert_profile_sql, fresher_profiles)
+            cur.executemany(q(insert_profile_sql), fresher_profiles)
 
             # 3. Companies
             companies_data = [
@@ -270,7 +280,7 @@ def seed_database():
                     location, website, contact_email, verification_status
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """
-            cur.executemany(insert_company_sql, companies_data)
+            cur.executemany(q(insert_company_sql), companies_data)
 
             cur.execute("SELECT id, recruiter_user_id, company_name FROM companies")
             comp_rows = cur.fetchall()
@@ -723,7 +733,7 @@ def seed_database():
                     application_deadline, status, is_featured, is_sample, views_count, created_at
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
             """
-            cur.executemany(insert_job_sql, jobs_data)
+            cur.executemany(q(insert_job_sql), jobs_data)
 
             cur.execute("SELECT id, title FROM jobs")
             job_rows = cur.fetchall()
@@ -787,7 +797,7 @@ def seed_database():
                     status, recruiter_notes, applied_at
                 ) VALUES (%s, %s, %s, %s, %s, %s, NOW())
             """
-            cur.executemany(insert_app_sql, apps_data)
+            cur.executemany(q(insert_app_sql), apps_data)
 
             # 6. Saved Jobs
             saved_jobs_data = [
@@ -798,7 +808,7 @@ def seed_database():
                 (user_map['vikram.aditya@gmail.com'], job_map['Data Science Intern']),
                 (user_map['divya.iyer@gmail.com'], job_map['Frontend Developer Intern'])
             ]
-            cur.executemany("INSERT INTO saved_jobs (fresher_user_id, job_id, created_at) VALUES (%s, %s, NOW())", saved_jobs_data)
+            cur.executemany(q("INSERT INTO saved_jobs (fresher_user_id, job_id, created_at) VALUES (%s, %s, NOW())"), saved_jobs_data)
 
             # 7. Notifications
             notifs_data = [
@@ -842,13 +852,12 @@ def seed_database():
                 INSERT INTO notifications (user_id, title, message, link, is_read, created_at)
                 VALUES (%s, %s, %s, %s, %s, NOW())
             """
-            cur.executemany(insert_notif_sql, notifs_data)
+            cur.executemany(q(insert_notif_sql), notifs_data)
 
             # 8. Reports
-            cur.execute("""
-                INSERT INTO reports (reported_by_user_id, job_id, reason, details, status, created_at)
+            cur.execute(q("""INSERT INTO reports (reported_by_user_id, job_id, reason, details, status, created_at)
                 VALUES (%s, %s, %s, %s, %s, NOW())
-            """, (
+            """), (
                 user_map['rahul.sharma@gmail.com'],
                 job_map['Technical Support Engineer (L1)'],
                 'Requires clarification on shift allowance',
@@ -857,10 +866,9 @@ def seed_database():
             ))
 
             # 9. Audit Logs
-            cur.execute("""
-                INSERT INTO audit_logs (user_id, action, details, created_at)
+            cur.execute(q("""INSERT INTO audit_logs (user_id, action, details, created_at)
                 VALUES (%s, %s, %s, NOW())
-            """, (
+            """), (
                 user_map['admin@firststep.com'],
                 'System Initialized',
                 'Platform seeded with 42 fresher-friendly job listings across 6 categories.'
@@ -874,7 +882,8 @@ def seed_database():
         print(f"Error seeding database: {e}")
         raise e
     finally:
-        conn.close()
+        if close_at_end:
+            conn.close()
 
 if __name__ == '__main__':
     seed_database()
