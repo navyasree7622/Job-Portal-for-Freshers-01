@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}{% if job %}Edit Job: {{ job.title }}{% else %}Post a New Vacancy{% endif %} — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container dashboard-layout" style="max-width: 920px; padding-top: 2rem; padding-bottom: 5rem;">
+  
+  <div class="dashboard-header" style="margin-bottom: 2rem;">
+    <div class="dashboard-greeting">
+      <h1>{% if job %}Edit Job Listing{% else %}Post a New Entry-Level Vacancy{% endif %}</h1>
+      <p>Connect with ambitious freshers by defining clear responsibilities and eligibility criteria.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('manage_jobs') }}" class="btn btn-outline">&larr; Back to Job Listings</a>
+    </div>
+  </div>
+
+  <form action="{% if job %}{{ url_for('edit_job', job_id=job.id) }}{% else %}{{ url_for('post_job') }}{% endif %}" method="POST">
+    
+    <!-- Section 1: Basic Information -->
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
+      <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy); margin-bottom: 1.5rem;">
+        1. Role & Classification
+      </h2>
+
+      <div class="form-group">
+        <label for="title" class="form-label">Job Title <span class="required">*</span></label>
+        <input type="text" id="title" name="title" class="form-control" placeholder="e.g. Graduate Software Engineer Trainee" value="{{ job.title if job else '' }}" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="category" class="form-label">Category / Domain <span class="required">*</span></label>
+          <select id="category" name="category" class="form-control" required>
+            <option value="Software Development" {% if job and job.category == 'Software Development' %}selected{% endif %}>Software Development</option>
+            <option value="Data & Analytics" {% if job and job.category == 'Data & Analytics' %}selected{% endif %}>Data & Artificial Intelligence</option>
+            <option value="Quality Assurance" {% if job and job.category == 'Quality Assurance' %}selected{% endif %}>Quality Assurance & Testing</option>
+            <option value="Cloud & DevOps" {% if job and job.category == 'Cloud & DevOps' %}selected{% endif %}>Cloud & IT Infrastructure</option>
+            <option value="Business & Operations" {% if job and job.category == 'Business & Operations' %}selected{% endif %}>Business & Design</option>
+            <option value="Core Engineering" {% if job and job.category == 'Core Engineering' %}selected{% endif %}>Graduate Engineering Trainee</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="job_type" class="form-label">Employment Type <span class="required">*</span></label>
+          <select id="job_type" name="job_type" class="form-control" required>
+            <option value="Full-Time" {% if job and job.job_type == 'Full-Time' %}selected{% endif %}>Full-Time</option>
+            <option value="Internship" {% if job and job.job_type == 'Internship' %}selected{% endif %}>Paid Internship</option>
+            <option value="Part-Time" {% if job and job.job_type == 'Part-Time' %}selected{% endif %}>Part-Time</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="work_arrangement" class="form-label">Work Arrangement <span class="required">*</span></label>
+          <select id="work_arrangement" name="work_arrangement" class="form-control" required>
+            <option value="Onsite" {% if not job or job.work_arrangement == 'Onsite' %}selected{% endif %}>📍 Onsite Office</option>
+            <option value="Hybrid" {% if job and job.work_arrangement == 'Hybrid' %}selected{% endif %}>🏢 Hybrid (Office + Remote)</option>
+            <option value="Remote" {% if job and job.work_arrangement == 'Remote' %}selected{% endif %}>🌐 100% Remote</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="experience_level" class="form-label">Target Batch / Experience <span class="required">*</span></label>
+          <select id="experience_level" name="experience_level" class="form-control" required>
+            <option value="0 Years (Fresh Graduate)" {% if job and job.experience_level == '0 Years (Fresh Graduate)' %}selected{% endif %}>0 Years (Fresh Graduate)</option>
+            <option value="Fresher / 0-1 Years" {% if not job or job.experience_level == 'Fresher / 0-1 Years' %}selected{% endif %}>Fresher / 0-1 Years</option>
+            <option value="0-6 Months" {% if job and job.experience_level == '0-6 Months' %}selected{% endif %}>0-6 Months</option>
+            <option value="0-2 Years" {% if job and job.experience_level == '0-2 Years' %}selected{% endif %}>0-2 Years</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="location" class="form-label">Job Location <span class="required">*</span></label>
+          <input type="text" id="location" name="location" class="form-control" placeholder="e.g. Bangalore, Hyderabad, or Remote" value="{{ job.location if job else '' }}" required>
+        </div>
+
+        <div class="form-group">
+          <label for="application_deadline" class="form-label">Application Deadline</label>
+          <input type="date" id="application_deadline" name="application_deadline" class="form-control" value="{{ job.application_deadline if job and job.application_deadline else '' }}">
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Compensation & Requirements -->
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
+      <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy); margin-bottom: 1.5rem;">
+        2. Compensation & Requirements
+      </h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="salary_min" class="form-label">Minimum Annual Package / Stipend (INR)</label>
+          <input type="number" id="salary_min" name="salary_min" class="form-control" placeholder="e.g. 400000" value="{{ job.salary_min if job and job.salary_min else '' }}">
+        </div>
+
+        <div class="form-group">
+          <label for="salary_max" class="form-label">Maximum Annual Package / Stipend (INR)</label>
+          <input type="number" id="salary_max" name="salary_max" class="form-control" placeholder="e.g. 600000" value="{{ job.salary_max if job and job.salary_max else '' }}">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="required_skills" class="form-label">Required Skills (Comma separated) <span class="required">*</span></label>
+        <input type="text" id="required_skills" name="required_skills" class="form-control" placeholder="e.g. Python, SQL, REST APIs, Git, Problem Solving" value="{{ job.required_skills if job else '' }}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="eligibility" class="form-label">Eligibility Criteria (Education, Degree, Passing Year)</label>
+        <textarea id="eligibility" name="eligibility" class="form-control" rows="2" placeholder="e.g. B.Tech / B.E. / BCA / MCA in CS/IT with min 60% aggregate. Batch of 2024–2026.">{{ job.eligibility if job and job.eligibility else '' }}</textarea>
+      </div>
+    </div>
+
+    <!-- Section 3: Detailed Job Description -->
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
+      <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy); margin-bottom: 1.5rem;">
+        3. Description & Responsibilities
+      </h2>
+
+      <div class="form-group">
+        <label for="description" class="form-label">Role Overview / Summary <span class="required">*</span></label>
+        <textarea id="description" name="description" class="form-control" rows="4" placeholder="Describe the role, day-to-day work, training provided, mentorship, and growth opportunities..." required>{{ job.description if job else '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="responsibilities" class="form-label">Key Responsibilities</label>
+        <textarea id="responsibilities" name="responsibilities" class="form-control" rows="4" placeholder="- Build clean, testable code&#10;- Collaborate with mentors and engineers&#10;- Participate in design and code reviews">{{ job.responsibilities if job and job.responsibilities else '' }}</textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="status" class="form-label">Publishing Status <span class="required">*</span></label>
+          <select id="status" name="status" class="form-control" required>
+            <option value="published" {% if not job or job.status == 'published' %}selected{% endif %}>Published (Accepting Applications)</option>
+            <option value="draft" {% if job and job.status == 'draft' %}selected{% endif %}>Save as Draft</option>
+            {% if job %}
+              <option value="closed" {% if job and job.status == 'closed' %}selected{% endif %}>Closed (No longer accepting applications)</option>
+            {% endif %}
+          </select>
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.75rem;">
+          <input type="checkbox" id="is_featured" name="is_featured" value="1" {% if job and job.is_featured %}checked{% endif %} style="width: 18px; height: 18px;">
+          <label for="is_featured" class="form-label" style="margin-bottom: 0; cursor: pointer;">
+            Mark as Featured Vacancy (Pin to top)
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+      <a href="{{ url_for('manage_jobs') }}" class="btn btn-outline btn-lg">Cancel</a>
+      <button type="submit" class="btn btn-primary btn-lg">
+        {% if job %}Save Changes{% else %}Publish Job Listing{% endif %}
+      </button>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}
