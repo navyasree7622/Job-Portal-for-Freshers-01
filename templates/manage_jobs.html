@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Job Postings — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container dashboard-layout">
+  
+  <div class="dashboard-header">
+    <div class="dashboard-greeting">
+      <h1>Job Postings Management</h1>
+      <p>View, edit, close, and track candidate numbers across all your listed vacancies.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('post_job') }}" class="btn btn-primary">+ Post a New Job</a>
+    </div>
+  </div>
+
+  <div class="card-table-wrapper">
+    <div class="card-table-header">
+      <h2 class="card-table-title">Your Listed Openings ({{ jobs|length }})</h2>
+    </div>
+
+    <div class="data-table-container">
+      {% if jobs %}
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Job Title</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th>Applicants</th>
+              <th>Views</th>
+              <th>Status</th>
+              <th>Posted On</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in jobs %}
+              <tr>
+                <td>
+                  <a href="{{ url_for('job_details', job_id=job.id) }}" style="font-weight: 700; color: var(--navy);">
+                    {{ job.title }}
+                  </a>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ job.location }}</div>
+                </td>
+                <td>{{ job.category }}</td>
+                <td><span class="badge badge-primary">{{ job.job_type }}</span></td>
+                <td>
+                  <a href="{{ url_for('recruiter_applicants', job_id=job.id) }}" style="font-weight: 700; color: var(--primary);">
+                    {{ job.applicant_count }} candidates
+                  </a>
+                </td>
+                <td>{{ job.views_count }}</td>
+                <td>
+                  <span class="status-badge status-{{ job.status }}">{{ job.status }}</span>
+                </td>
+                <td>{{ job.created_at.strftime('%d %b %Y') if job.created_at else 'Recent' }}</td>
+                <td>
+                  <div style="display: flex; gap: 0.4rem; align-items: center;">
+                    <a href="{{ url_for('recruiter_applicants', job_id=job.id) }}" class="btn btn-primary btn-sm" title="View Applicants">
+                      Applicants ({{ job.applicant_count }})
+                    </a>
+                    <a href="{{ url_for('edit_job', job_id=job.id) }}" class="btn btn-outline btn-sm" title="Edit Job">
+                      Edit
+                    </a>
+                    {% if job.status == 'published' %}
+                      <form action="{{ url_for('toggle_job_status', job_id=job.id) }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="new_status" value="closed">
+                        <button type="submit" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: var(--danger);" title="Close Vacancy">
+                          Close
+                        </button>
+                      </form>
+                    {% elif job.status == 'closed' %}
+                      <form action="{{ url_for('toggle_job_status', job_id=job.id) }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="new_status" value="published">
+                        <button type="submit" class="btn btn-outline btn-sm" style="color: var(--success); border-color: var(--success);" title="Reopen Vacancy">
+                          Reopen
+                        </button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty-state" style="border: none;">
+          <h3 class="empty-title">No job postings created yet</h3>
+          <p class="empty-desc">Create your first graduate opening and start connecting with eager candidates.</p>
+          <a href="{{ url_for('post_job') }}" class="btn btn-primary">+ Post a Job Opening</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
