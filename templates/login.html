@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1 class="auth-title">Welcome Back</h1>
+      <p class="auth-subtitle">Sign in to manage your applications or candidate postings.</p>
+    </div>
+
+    <form action="{{ url_for('login') }}" method="POST">
+      <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+
+      <div class="form-group">
+        <label for="email" class="form-label">Email Address <span class="required">*</span></label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="name@domain.com" required value="{{ request.form.get('email', '') }}">
+      </div>
+
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+          <label for="password" class="form-label" style="margin-bottom: 0;">Password <span class="required">*</span></label>
+        </div>
+        <div style="position: relative;">
+          <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+          <button type="button" class="password-toggle-btn" data-target="password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted);">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.5rem;">
+        Sign In to FirstStep
+      </button>
+
+      <div style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+        Don't have an account yet? <a href="{{ url_for('register') }}" style="font-weight: 700;">Create an Account</a>
+      </div>
+    </form>
+
+    <!-- Quick Demo Accounts Box for Evaluator/Tester -->
+    <div class="demo-box">
+      <div class="demo-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>One-Click Test Login Credentials</span>
+      </div>
+      <div class="demo-grid">
+        <div class="demo-item">
+          <div>
+            <strong>Fresher:</strong> rahul.sharma@gmail.com
+          </div>
+          <button type="button" class="demo-btn" onclick="fillCredentials('rahul.sharma@gmail.com', 'fresher123')">Use</button>
+        </div>
+        <div class="demo-item">
+          <div>
+            <strong>Recruiter (TCS):</strong> tcs.careers@tcs.com
+          </div>
+          <button type="button" class="demo-btn" onclick="fillCredentials('tcs.careers@tcs.com', 'recruiter123')">Use</button>
+        </div>
+        <div class="demo-item">
+          <div>
+            <strong>Admin:</strong> admin@firststep.com
+          </div>
+          <button type="button" class="demo-btn" onclick="fillCredentials('admin@firststep.com', 'admin123')">Use</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function fillCredentials(email, pwd) {
+  document.getElementById('email').value = email;
+  document.getElementById('password').value = pwd;
+}
+</script>
+{% endblock %}
+
