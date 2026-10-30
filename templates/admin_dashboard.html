@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Command Center — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container dashboard-layout" style="padding-top: 2rem; padding-bottom: 5rem;">
+  
+  <!-- Header -->
+  <div class="dashboard-header" style="background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 100%); color: #fff; padding: 2rem 2.25rem; border-radius: var(--radius-lg); margin-bottom: 2rem; box-shadow: var(--shadow-md);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+      <div class="dashboard-greeting">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+          <span class="badge" style="background: rgba(239, 68, 68, 0.25); color: #FCA5A5; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.4);">
+            System Administrator
+          </span>
+          <span style="font-size: 0.85rem; color: #CBD5E1;">Platform Governance & Audit System</span>
+        </div>
+        <h1 style="font-size: 1.85rem; font-weight: 800; color: #fff; margin-bottom: 0.35rem;">Command Center Overview</h1>
+        <p style="color: #CBD5E1; font-size: 0.95rem; margin-bottom: 0;">Platform moderation, company legitimacy vetting, user account governance, and audit trails.</p>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <a href="{{ url_for('admin_companies') }}" class="btn btn-primary" style="background: var(--royal); border-color: var(--royal);">
+          Verify Companies ({{ metrics.pending_companies }})
+        </a>
+        <a href="{{ url_for('admin_reports') }}" class="btn btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.08);">
+          Safety Reports ({{ metrics.pending_reports }})
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Priority Alert Bar if Pending Verifications or Reports -->
+  {% if metrics.pending_companies > 0 or metrics.pending_reports > 0 %}
+    <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <svg width="24" height="24" fill="none" stroke="#D97706" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <div>
+          <strong style="color: #92400E; font-size: 0.95rem;">Pending Moderation Actions Required</strong>
+          <p style="color: #B45309; font-size: 0.85rem; margin-bottom: 0;">
+            There are <strong>{{ metrics.pending_companies }}</strong> employer verification requests and <strong>{{ metrics.pending_reports }}</strong> unreviewed user grievance reports awaiting review.
+          </p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.5rem;">
+        {% if metrics.pending_companies > 0 %}
+          <a href="{{ url_for('admin_companies') }}" class="btn btn-sm" style="background: #D97706; color: #fff;">Review Employers</a>
+        {% endif %}
+        {% if metrics.pending_reports > 0 %}
+          <a href="{{ url_for('admin_reports') }}" class="btn btn-sm btn-danger">Review Grievances</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Metric Counters Grid (Real MySQL Statistics) -->
+  <div class="metric-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;">
+    <!-- Registered Users -->
+    <div class="metric-card" style="border-top: 3px solid var(--primary);">
+      <div class="metric-icon-box metric-icon-blue">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">{{ metrics.total_users }}</div>
+        <div class="metric-label">{{ metrics.total_freshers }} Freshers / {{ metrics.total_recruiters }} Recruiters</div>
+      </div>
+    </div>
+
+    <!-- Total Jobs -->
+    <div class="metric-card" style="border-top: 3px solid var(--secondary);">
+      <div class="metric-icon-box metric-icon-green">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">{{ metrics.active_jobs }} / {{ metrics.total_jobs }}</div>
+        <div class="metric-label">Active / Total Jobs</div>
+      </div>
+    </div>
+
+    <!-- Total Applications -->
+    <div class="metric-card" style="border-top: 3px solid #7E22CE;">
+      <div class="metric-icon-box metric-icon-purple">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">{{ metrics.total_applications }}</div>
+        <div class="metric-label">Processed Applications</div>
+      </div>
+    </div>
+
+    <!-- Pending Companies -->
+    <div class="metric-card" style="border-top: 3px solid var(--accent);">
+      <div class="metric-icon-box" style="background: rgba(245, 158, 11, 0.12); color: var(--accent);">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">{{ metrics.pending_companies }}</div>
+        <div class="metric-label">Pending Verification</div>
+      </div>
+    </div>
+
+    <!-- Platform Reports -->
+    <div class="metric-card" style="border-top: 3px solid var(--danger);">
+      <div class="metric-icon-box" style="background: rgba(239, 68, 68, 0.12); color: var(--danger);">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">{{ metrics.pending_reports }} / {{ metrics.total_reports }}</div>
+        <div class="metric-label">Unresolved Reports</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Admin Navigation Blocks -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+    <a href="{{ url_for('admin_users') }}" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; text-decoration: none; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: space-between; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+      <div>
+        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 0.25rem;">User Management</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0;">Activate, suspend, or audit accounts</p>
+      </div>
+      <span style="font-size: 1.25rem; color: var(--primary); font-weight: 700;">&rarr;</span>
+    </a>
+
+    <a href="{{ url_for('admin_companies') }}" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; text-decoration: none; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: space-between; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+      <div>
+        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 0.25rem;">Verify Employers</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0;">Review recruiter legitimacy</p>
+      </div>
+      <span style="font-size: 1.25rem; color: var(--secondary); font-weight: 700;">&rarr;</span>
+    </a>
+
+    <a href="{{ url_for('admin_jobs') }}" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; text-decoration: none; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: space-between; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+      <div>
+        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 0.25rem;">Job Moderation</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0;">Publish, close, or feature listings</p>
+      </div>
+      <span style="font-size: 1.25rem; color: #7E22CE; font-weight: 700;">&rarr;</span>
+    </a>
+
+    <a href="{{ url_for('admin_reports') }}" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; text-decoration: none; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: space-between; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+      <div>
+        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 0.25rem;">Safety Grievances</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0;">Investigate reported vacancies</p>
+      </div>
+      <span style="font-size: 1.25rem; color: var(--danger); font-weight: 700;">&rarr;</span>
+    </a>
+  </div>
+
+  <!-- Two-Column Analytics & Audit Section -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2.5rem; align-items: start;">
+    
+    <!-- Left: Domain Job Distribution -->
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.75rem; box-shadow: var(--shadow-sm);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 0.4rem;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          Vacancies by Industry Domain
+        </h3>
+        <a href="{{ url_for('admin_jobs') }}" style="font-size: 0.8rem; font-weight: 600; color: var(--primary);">View All Jobs &rarr;</a>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for cat in category_stats %}
+          {% set pct = (cat.count / metrics.total_jobs * 100) | round(1) if metrics.total_jobs > 0 else 0 %}
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.35rem;">
+              <span style="font-weight: 600; color: var(--navy);">{{ cat.category }}</span>
+              <span style="color: var(--text-muted); font-weight: 700;">{{ cat.count }} jobs ({{ pct }}%)</span>
+            </div>
+            <div style="height: 8px; background: var(--bg); border-radius: var(--radius-full); overflow: hidden;">
+              <div style="height: 100%; width: {{ pct }}%; background: {% if loop.index == 1 %}var(--primary){% elif loop.index == 2 %}var(--secondary){% elif loop.index == 3 %}var(--accent){% elif loop.index == 4 %}#7E22CE{% elif loop.index == 5 %}#4338CA{% else %}#047857{% endif %}; border-radius: var(--radius-full);"></div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Right: Administrative Audit Log -->
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.75rem; box-shadow: var(--shadow-sm);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 0.4rem;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Recent Administrative Audit Trail
+        </h3>
+        <span class="badge badge-outline" style="font-size: 0.75rem;">Security Logs</span>
+      </div>
+
+      {% if recent_audit_logs %}
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          {% for log in recent_audit_logs %}
+            <div style="padding: 0.75rem; border-radius: var(--radius-sm); background: var(--bg); border-left: 3px solid var(--primary); font-size: 0.85rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                <span style="font-weight: 700; color: var(--navy); text-transform: uppercase; font-size: 0.75rem;">{{ log.action }}</span>
+                <span style="font-size: 0.7rem; color: var(--text-light);">{{ log.created_at.strftime('%d %b, %H:%M') if log.created_at else 'Recent' }}</span>
+              </div>
+              <div style="color: var(--text-main); line-height: 1.4;">{{ log.details }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                By: <strong>{{ log.user_name or 'Administrator' }}</strong>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 2rem 0;">
+          No administrative events recorded yet.
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Recent User Registrations -->
+  <div class="card-table-wrapper">
+    <div class="card-table-header">
+      <h2 class="card-table-title" style="font-size: 1.25rem;">Recent User Registrations</h2>
+      <a href="{{ url_for('admin_users') }}" class="btn btn-outline btn-sm">All Registered Users ({{ metrics.total_users }}) &rarr;</a>
+    </div>
+
+    <div class="data-table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Joined On</th>
+            <th>Quick Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in recent_users %}
+            <tr>
+              <td><strong>{{ u.name }}</strong></td>
+              <td>{{ u.email }}</td>
+              <td>
+                <span class="badge {% if u.role == 'admin' %}badge-accent{% elif u.role == 'recruiter' %}badge-secondary{% else %}badge-primary{% endif %}">
+                  {{ u.role }}
+                </span>
+              </td>
+              <td>
+                {% if u.is_active %}
+                  <span class="status-badge status-selected">Active</span>
+                {% else %}
+                  <span class="status-badge status-rejected">Suspended</span>
+                {% endif %}
+              </td>
+              <td>{{ u.created_at.strftime('%d %b %Y') if u.created_at else 'Recent' }}</td>
+              <td>
+                {% if u.id != session['user_id'] %}
+                  <form action="{{ url_for('admin_toggle_user', user_id=u.id) }}" method="POST" style="display: inline;">
+                    {% if u.is_active %}
+                      <button type="submit" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: var(--danger); font-size: 0.75rem; padding: 0.2rem 0.5rem;" onclick="return confirm('Suspend this account?');">
+                        Suspend
+                      </button>
+                    {% else %}
+                      <button type="submit" class="btn btn-outline btn-sm" style="color: var(--success); border-color: var(--success); font-size: 0.75rem; padding: 0.2rem 0.5rem;">
+                        Reactivate
+                      </button>
+                    {% endif %}
+                  </form>
+                {% else %}
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">(Current User)</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
