@@ -11,6 +11,35 @@ load_dotenv(os.path.join(basedir, '.env'))
 SQLITE_PATH = os.path.join(os.path.dirname(__file__), 'job_portal.db')
 _USE_SQLITE = None
 
+class SmartDateTime(str):
+    def strftime(self, fmt):
+        for f in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S.%f'):
+            try:
+                return datetime.strptime(self, f).strftime(fmt)
+            except ValueError:
+                pass
+        return self
+
+def _convert_val(v, key=""):
+    if isinstance(v, str):
+        # If it looks like a datetime or key indicates a date
+        if any(w in key.lower() for w in ('_at', 'date', 'deadline', 'time')) or (len(v) >= 10 and '-' in v[:10]):
+            for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S.%f'):
+                try:
+                    return datetime.strptime(v, fmt)
+                except ValueError:
+                    pass
+            return SmartDateTime(v)
+    return v
+
+def _convert_row(r):
+    if r is None:
+        return None
+    d = dict(r)
+    for k, v in d.items():
+        d[k] = _convert_val(v, k)
+    return d
+
 def _init_sqlite_schema(conn):
     cur = conn.cursor()
     cur.executescript("""
@@ -145,8 +174,11 @@ def query_db(query, args=(), one=False):
             q_str = query.replace('%s', '?')
             cur = conn.cursor()
             cur.execute(q_str, args)
-            rows = [dict(r) for r in cur.fetchall()]
-            return (rows[0] if rows else None) if one else rows
+            if one:
+                row = cur.fetchone()
+                return _convert_row(row) if row else None
+            else:
+                return [_convert_row(r) for r in cur.fetchall()]
         else:
             with conn.cursor() as cur:
                 cur.execute(query, args)
