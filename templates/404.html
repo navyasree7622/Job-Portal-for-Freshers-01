@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Page Not Found — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 6rem 1.5rem; text-align: center;">
+  <div style="font-size: 5rem; font-weight: 800; color: var(--primary); line-height: 1;">404</div>
+  <h1 style="font-size: 2rem; font-weight: 800; color: var(--navy); margin: 1rem 0 0.5rem;">Page Not Found</h1>
+  <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 2rem; font-size: 1.05rem;">
+    The page or job opening you are looking for may have been removed, closed, or moved to a new address.
+  </p>
+  <div style="display: flex; gap: 1rem; justify-content: center;">
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Go to Homepage</a>
+    <a href="{{ url_for('browse_jobs') }}" class="btn btn-outline">Search Jobs</a>
+  </div>
+</div>
+{% endblock %}
+
