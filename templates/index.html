@@ -3,6 +3,16 @@
 {% block title %}FirstStep Careers — Premier Job & Internship Portal for Freshers{% endblock %}
 
 {% block content %}
+<script>
+  if (
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+    window.location.port &&
+    window.location.port !== '5000'
+  ) {
+    window.location.replace('http://127.0.0.1:5000/');
+  }
+</script>
+
 <!-- Hero Section -->
 <section class="hero-section">
   <div class="container hero-content">
