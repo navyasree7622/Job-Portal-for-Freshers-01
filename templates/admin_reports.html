@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Reports & Grievances — Admin — FirstStep Careers{% endblock %}
+
+{% block content %}
+<div class="container dashboard-layout">
+  
+  <div class="dashboard-header">
+    <div class="dashboard-greeting">
+      <h1>Candidate Reports & Grievances</h1>
+      <p>Review reports flagged by freshers regarding fraudulent listings, fee requests, or misrepresentations.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">&larr; Back to Admin Overview</a>
+    </div>
+  </div>
+
+  <div class="card-table-wrapper">
+    <div class="card-table-header">
+      <h2 class="card-table-title">Safety Reports Queue ({{ reports|length }})</h2>
+    </div>
+
+    <div class="data-table-container">
+      {% if reports %}
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Reported Job & Employer</th>
+              <th>Reported By</th>
+              <th>Reason</th>
+              <th>Details / Evidence</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in reports %}
+              <tr>
+                <td>
+                  <a href="{{ url_for('job_details', job_id=r.job_id) }}" target="_blank" style="font-weight: 700; color: var(--navy);">
+                    {{ r.job_title }}
+                  </a>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ r.company_name }}</div>
+                </td>
+                <td>
+                  <div>{{ r.reporter_name }}</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ r.reporter_email }}</div>
+                </td>
+                <td>
+                  <strong style="color: var(--danger);">{{ r.reason }}</strong>
+                </td>
+                <td>
+                  <div style="max-width: 260px; font-size: 0.85rem; color: var(--text-main);">
+                    {{ r.details or 'No additional details provided' }}
+                  </div>
+                </td>
+                <td>{{ r.created_at.strftime('%d %b %Y') if r.created_at else 'Recent' }}</td>
+                <td>
+                  {% if r.status == 'pending' %}
+                    <span class="status-badge status-under-review">Pending</span>
+                  {% elif r.status == 'resolved' %}
+                    <span class="status-badge status-selected">Resolved</span>
+                  {% else %}
+                    <span class="status-badge status-closed">Dismissed</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div style="display: flex; gap: 0.4rem;">
+                    {% if r.status != 'resolved' %}
+                      <form action="{{ url_for('admin_handle_report', report_id=r.id) }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="status" value="resolved">
+                        <button type="submit" class="btn btn-secondary btn-sm" title="Mark Resolved">
+                          Resolve
+                        </button>
+                      </form>
+                    {% endif %}
+
+                    {% if r.status != 'dismissed' %}
+                      <form action="{{ url_for('admin_handle_report', report_id=r.id) }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="status" value="dismissed">
+                        <button type="submit" class="btn btn-outline btn-sm" title="Dismiss Report">
+                          Dismiss
+                        </button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty-state" style="border: none;">
+          <h3 class="empty-title">Zero Active Grievances</h3>
+          <p class="empty-desc">All candidate reports have been resolved or investigated.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
