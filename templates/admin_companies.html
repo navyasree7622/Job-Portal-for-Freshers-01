@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Company Verification & Moderation — Admin{% endblock %}
+
+{% block content %}
+<div class="container dashboard-layout">
+  
+  <div class="dashboard-header">
+    <div class="dashboard-greeting">
+      <h1>Company Verification & Oversight</h1>
+      <p>Verify legitimate employer business domains and protect freshers from misleading recruiters.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">&larr; Back to Admin Overview</a>
+    </div>
+  </div>
+
+  <div class="card-table-wrapper">
+    <div class="card-table-header">
+      <h2 class="card-table-title">Registered Hiring Organizations ({{ companies|length }})</h2>
+    </div>
+
+    <div class="data-table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Company Name</th>
+            <th>Industry</th>
+            <th>Website</th>
+            <th>Headquarters</th>
+            <th>Recruiter Details</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in companies %}
+            <tr>
+              <td>
+                <strong style="color: var(--navy); font-size: 1rem;">{{ c.company_name }}</strong>
+              </td>
+              <td>{{ c.industry }}</td>
+              <td>
+                {% if c.website %}
+                  <a href="{{ c.website }}" target="_blank" rel="noopener noreferrer" style="font-weight: 600;">Visit &rarr;</a>
+                {% else %}
+                  <span style="color: var(--text-light);">-</span>
+                {% endif %}
+              </td>
+              <td>{{ c.location or '-' }}</td>
+              <td>
+                <div>{{ c.recruiter_name }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ c.contact_email or c.recruiter_email }}</div>
+              </td>
+              <td>
+                {% if c.verification_status == 'verified' %}
+                  <span class="status-badge status-selected">Verified</span>
+                {% elif c.verification_status == 'pending' %}
+                  <span class="status-badge status-under-review">Pending</span>
+                {% else %}
+                  <span class="status-badge status-rejected">Rejected</span>
+                {% endif %}
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.4rem;">
+                  {% if c.verification_status != 'verified' %}
+                    <form action="{{ url_for('admin_verify_company', company_id=c.id) }}" method="POST" style="display: inline;">
+                      <input type="hidden" name="status" value="verified">
+                      <button type="submit" class="btn btn-secondary btn-sm" title="Approve Company">
+                        Verify
+                      </button>
+                    </form>
+                  {% endif %}
+
+                  {% if c.verification_status != 'rejected' %}
+                    <form action="{{ url_for('admin_verify_company', company_id=c.id) }}" method="POST" style="display: inline;">
+                      <input type="hidden" name="status" value="rejected">
+                      <button type="submit" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: var(--danger);" title="Reject Company">
+                        Reject
+                      </button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
